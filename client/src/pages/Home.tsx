@@ -148,10 +148,10 @@ WinGetClass, Class, ahk_id %WinID%
 WinGetTitle, Title, ahk_id %WinID%
 WinGet, Process, ProcessName, ahk_id %WinID%
 
-Info := "Window Information:\`n"
-Info .= "Title: " Title "\`n"
-Info .= "Class: " Class "\`n"
-Info .= "Process: " Process
+Info := "Window Information:" . "`n"
+Info .= "Title: " . Title . "`n"
+Info .= "Class: " . Class . "`n"
+Info .= "Process: " . Process
 
 MsgBox, %Info%
 return`,
@@ -481,6 +481,136 @@ AutoFarm() {
 
 F2::ExitApp`,
     version: 'v2'
+  },
+  {
+    id: 'c13',
+    name: 'RealTime Code Tester',
+    description: 'Test AHK code snippets in real-time. F1 to toggle GUI, F12 to test highlighted code, F11 to end test.',
+    tags: ['utility', 'development', 'testing'],
+    downloadCount: 3420,
+    content: `SetTitleMatchMode, 2 
+OnExit, GuiClose
+GuiShowFlag := 1
+
+Gui, Add, Edit, x22 y60 w440 h270 vTempCode WantCtrlA, Input code here
+Gui, Font, S10 CDefault Bold, Times New Roman
+Gui, Add, Text, x92 y10 w290 h40 +Center, Input Test Code
+Gui, Add, Button, x362 y330 w100 h30 gTestTempCode, Test code
+Gui, Add, Button, x262 y330 w100 h30 gEndTest, End testcode
+Gui, Add, Button, x22 y330 w100 h30 gClearTempCode, Clear code
+Gui, Show, x127 y87 h379 w479, RealTime Code tester
+Return
+
+$F1::
+KeyWait, F1, T.5
+If !ErrorLevel
+{
+    Send, {F1}
+    return
+}
+If (GuiShowFlag = 1)
+{
+    Gui, Hide
+    GuiShowFlag--
+}
+Else If (GuiShowFlag = 0)
+{
+    Gui, Show
+    GuiShowFlag++
+}
+KeyWait, F1
+return
+
+$F11::
+KeyWait, F11, T1
+If !ErrorLevel
+{
+    Send, {F11}
+    return
+}
+EndTest:
+PostMessage("Slave script", 1)
+TrayTip, Status:, Test code ended and deleted.
+KeyWait, F11
+return
+
+ClearTempCode:
+GuiControl,, TempCode,
+return
+
+GuiClose:
+PostMessage("Slave script", 1)
+ExitApp
+
+$F12::
+KeyWait, F12, T1
+If !ErrorLevel
+{
+    Send, {F12}
+    return
+}
+GuiControl,, TempCode,
+Sleep 200
+Clipsave := ClipboardAll
+Send, ^c
+GuiControl,, TempCode, %Clipboard%
+Clipboard := Clipsave
+TestTempCode:
+DetectHiddenWindows, On
+If Winexist("TempTestCode.ahk")
+{
+    PostMessage("Slave script", 1)
+}
+DetectHiddenWindows, Off
+
+Gui, Submit, NoHide
+FileAppend, 
+(
+#Persistent
+#SingleInstance, Force
+Progress, m2 b fs13 Y0 zh0 WMn700, Test script is running
+Gui 99: show, hide, Slave script
+OnMessage(0x1001,"ReceiveMessage")
+%TempCode%
+return
+
+ReceiveMessage(Message) {
+   if Message = 1
+   ExitApp
+}
+), %A_ScriptDir%\\TempTestCode.ahk
+Run, %A_ProgramFiles%\\AutoHotkey\\AutoHotkey.exe "%A_ScriptDir%\\TempTestCode.ahk"
+Sleep, 100
+IfWinExist, ahk_class #32770
+{
+    Sleep 20
+    WinActivate, ahk_class #32770
+    Clipsave := ClipboardAll
+    Send, ^c
+    CheckWin := Clipboard
+    Clipboard := Clipsave
+    IfInString, CheckWin, The program will exit.
+    {
+    IfExist, %A_ScriptDir%\\TempTestCode.ahk
+    FileDelete, %A_ScriptDir%\\TempTestCode.ahk
+    TrayTip, ERROR, Error executing the code properly
+    return
+    }
+}
+TrayTip, Status:, Test code is now running on your machine.
+return
+
+PostMessage(Receiver, Message) {
+   oldTMM := A_TitleMatchMode, oldDHW := A_DetectHiddenWindows
+   SetTitleMatchMode, 3
+   DetectHiddenWindows, on
+   PostMessage, 0x1001,%Message%,,, %Receiver% ahk_class AutoHotkeyGUI
+   SetTitleMatchMode, %oldTMM%
+   DetectHiddenWindows, %oldDHW%
+   IfExist, %A_ScriptDir%\\TempTestCode.ahk
+   FileDelete, %A_ScriptDir%\\TempTestCode.ahk
+}`,
+    version: 'v1'
   }
 ];
 
