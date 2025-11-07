@@ -1,20 +1,24 @@
-import { type User, type InsertUser } from "@shared/schema";
+import { type User, type InsertUser, type PersonalScript, type InsertPersonalScript } from "@shared/schema";
 import { randomUUID } from "crypto";
-
-// modify the interface with any CRUD methods
-// you might need
 
 export interface IStorage {
   getUser(id: string): Promise<User | undefined>;
   getUserByUsername(username: string): Promise<User | undefined>;
   createUser(user: InsertUser): Promise<User>;
+  
+  getPersonalScripts(): Promise<PersonalScript[]>;
+  getPersonalScript(id: string): Promise<PersonalScript | undefined>;
+  createPersonalScript(script: InsertPersonalScript): Promise<PersonalScript>;
+  deletePersonalScript(id: string): Promise<boolean>;
 }
 
 export class MemStorage implements IStorage {
   private users: Map<string, User>;
+  private personalScripts: Map<string, PersonalScript>;
 
   constructor() {
     this.users = new Map();
+    this.personalScripts = new Map();
   }
 
   async getUser(id: string): Promise<User | undefined> {
@@ -32,6 +36,25 @@ export class MemStorage implements IStorage {
     const user: User = { ...insertUser, id };
     this.users.set(id, user);
     return user;
+  }
+
+  async getPersonalScripts(): Promise<PersonalScript[]> {
+    return Array.from(this.personalScripts.values());
+  }
+
+  async getPersonalScript(id: string): Promise<PersonalScript | undefined> {
+    return this.personalScripts.get(id);
+  }
+
+  async createPersonalScript(insertScript: InsertPersonalScript): Promise<PersonalScript> {
+    const id = randomUUID();
+    const script: PersonalScript = { ...insertScript, id, isPersonal: true };
+    this.personalScripts.set(id, script);
+    return script;
+  }
+
+  async deletePersonalScript(id: string): Promise<boolean> {
+    return this.personalScripts.delete(id);
   }
 }
 

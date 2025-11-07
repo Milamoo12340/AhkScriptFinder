@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
-import { Plus } from "lucide-react";
+import { Plus, Loader2 } from "lucide-react";
 import SearchBar from "@/components/SearchBar";
 import SearchResultCard, { SearchResult } from "@/components/SearchResultCard";
 import ScriptCard, { Script } from "@/components/ScriptCard";
@@ -10,42 +10,14 @@ import CodeViewer from "@/components/CodeViewer";
 import AddScriptDialog from "@/components/AddScriptDialog";
 import ThemeToggle from "@/components/ThemeToggle";
 import { useToast } from "@/hooks/use-toast";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { apiRequest } from "@/lib/queryClient";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-
-//todo: remove mock functionality
-const mockSearchResults: SearchResult[] = [
-  {
-    id: '1',
-    repository: 'awesome-ahk-scripts',
-    owner: 'john-doe',
-    fileName: 'anti-afk.ahk',
-    filePath: 'scripts/gaming/anti-afk.ahk',
-    stars: 1250,
-    description: 'Prevents being kicked for inactivity in games by simulating mouse movements',
-    codePreview: `#Persistent\nSetTimer, AntiAFK, 300000\nreturn\n\nAntiAFK:\n  MouseMove, 1, 0, 0, R\n  Sleep, 100\n  MouseMove, -1, 0, 0, R\nreturn`,
-    url: 'https://github.com/john-doe/awesome-ahk-scripts',
-    downloadUrl: 'https://raw.githubusercontent.com/john-doe/awesome-ahk-scripts/main/anti-afk.ahk',
-    language: 'AHK v1'
-  },
-  {
-    id: '2',
-    repository: 'productivity-suite',
-    owner: 'ahk-master',
-    fileName: 'clipboard-manager.ahk',
-    filePath: 'tools/clipboard-manager.ahk',
-    stars: 892,
-    description: 'Advanced clipboard manager with history and search functionality',
-    codePreview: `#Requires AutoHotkey v2.0\n\nclipHistory := []\n\n^c:: {\n  A_Clipboard := ""\n  Send "^c"\n  ClipWait(1)\n  clipHistory.Push(A_Clipboard)\n}`,
-    url: 'https://github.com/ahk-master/productivity-suite',
-    downloadUrl: 'https://raw.githubusercontent.com/ahk-master/productivity-suite/main/clipboard-manager.ahk',
-    language: 'AHK v2'
-  }
-];
 
 const mockCuratedScripts: Script[] = [
   {
@@ -54,7 +26,24 @@ const mockCuratedScripts: Script[] = [
     description: 'Quickly move and resize windows with keyboard shortcuts. Supports multi-monitor setups and custom grid layouts.',
     tags: ['productivity', 'windows', 'shortcuts'],
     downloadCount: 5420,
-    content: '; Window management script',
+    content: `; Window Snap Manager - AHK v2
+#Requires AutoHotkey v2.0
+
+; Win + Left Arrow - Snap window to left half
+#Left::
+{
+    WinGetPos(&X, &Y, &W, &H, "A")
+    MonitorGetWorkArea(, &Left, &Top, &Right, &Bottom)
+    WinMove(Left, Top, (Right-Left)//2, Bottom-Top, "A")
+}
+
+; Win + Right Arrow - Snap window to right half
+#Right::
+{
+    WinGetPos(&X, &Y, &W, &H, "A")
+    MonitorGetWorkArea(, &Left, &Top, &Right, &Bottom)
+    WinMove(Left+(Right-Left)//2, Top, (Right-Left)//2, Bottom-Top, "A")
+}`,
     version: 'v2'
   },
   {
@@ -63,7 +52,14 @@ const mockCuratedScripts: Script[] = [
     description: 'Expand abbreviations into full text snippets. Perfect for email templates and common phrases.',
     tags: ['productivity', 'typing', 'automation'],
     downloadCount: 3890,
-    content: '; Text expansion script',
+    content: `; Text Expander - AHK v2
+#Requires AutoHotkey v2.0
+
+::btw::by the way
+::omw::on my way
+::brb::be right back
+::@email::your.email@example.com
+::@addr::123 Main St, City, State 12345`,
     version: 'v2'
   },
   {
@@ -72,44 +68,143 @@ const mockCuratedScripts: Script[] = [
     description: 'Collection of gaming macros for popular games. Includes auto-clicker and key rebinding.',
     tags: ['gaming', 'macros', 'automation'],
     downloadCount: 7215,
-    content: '; Gaming macro script',
+    content: `; Gaming Macro Suite - AHK v1
+#Persistent
+#NoEnv
+
+; F1 - Auto Clicker Toggle
+F1::
+toggle := !toggle
+if (toggle) {
+    SetTimer, AutoClick, 100
+} else {
+    SetTimer, AutoClick, Off
+}
+return
+
+AutoClick:
+Click
+return`,
     version: 'v1'
   }
 ];
 
 export default function Home() {
   const { toast } = useToast();
+  const queryClient = useQueryClient();
   const [searchQuery, setSearchQuery] = useState("");
   const [aiPrompt, setAiPrompt] = useState("");
-  const [isGenerating, setIsGenerating] = useState(false);
   const [generatedCode, setGeneratedCode] = useState<string | undefined>();
   const [addDialogOpen, setAddDialogOpen] = useState(false);
   const [previewDialogOpen, setPreviewDialogOpen] = useState(false);
   const [previewScript, setPreviewScript] = useState<Script | SearchResult | null>(null);
-  
-  //todo: remove mock functionality
-  const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
-  const [personalScripts, setPersonalScripts] = useState<Script[]>([]);
+  const [hasSearched, setHasSearched] = useState(false);
+
+  const searchMutation = useMutation({
+    mutationFn: async (query: string) => {
+      const response = await apiRequest('POST', '/api/search/github', { query });
+      return response.json();
+    },
+    onSuccess: (data) => {
+      if (data.success) {
+        toast({
+          title: "Search completed",
+          description: `Found ${data.results.length} AutoHotkey scripts`,
+        });
+      }
+    },
+    onError: () => {
+      toast({
+        title: "Search failed",
+        description: "Unable to search GitHub. Please try again.",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const personalScriptsQuery = useQuery<{ scripts: Script[] }>({
+    queryKey: ['/api/scripts/personal'],
+  });
+
+  const addScriptMutation = useMutation({
+    mutationFn: async (script: Omit<Script, 'id'>) => {
+      const response = await apiRequest('POST', '/api/scripts/personal', script);
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/scripts/personal'] });
+      toast({
+        title: "Script added",
+        description: "Your script has been added to your library",
+      });
+    },
+  });
+
+  const deleteScriptMutation = useMutation({
+    mutationFn: async (id: string) => {
+      const response = await apiRequest('DELETE', `/api/scripts/personal/${id}`);
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/scripts/personal'] });
+      toast({
+        title: "Script deleted",
+        description: "Script has been removed from your library",
+      });
+    },
+  });
+
+  const generateMutation = useMutation({
+    mutationFn: async (prompt: string) => {
+      const response = await apiRequest('POST', '/api/ai/generate', { prompt });
+      return response.json();
+    },
+    onSuccess: (data) => {
+      if (data.success) {
+        setGeneratedCode(data.code);
+        toast({
+          title: "Script generated",
+          description: "Your AutoHotkey script has been generated successfully",
+        });
+      }
+    },
+    onError: () => {
+      toast({
+        title: "Generation failed",
+        description: "Unable to generate script. Please try again.",
+        variant: "destructive",
+      });
+    },
+  });
 
   const handleSearch = () => {
     if (searchQuery.trim()) {
-      //todo: remove mock functionality - replace with actual GitHub API search
-      setSearchResults(mockSearchResults);
-      toast({
-        title: "Search completed",
-        description: `Found ${mockSearchResults.length} results for "${searchQuery}"`,
-      });
+      setHasSearched(true);
+      searchMutation.mutate(searchQuery);
     }
   };
 
   const handleDownload = (item: SearchResult | Script) => {
     const fileName = 'fileName' in item ? item.fileName : `${item.name}.ahk`;
+    const content = 'content' in item ? item.content : item.codePreview;
+    const downloadUrl = 'downloadUrl' in item ? item.downloadUrl : null;
+
+    if (downloadUrl) {
+      window.open(downloadUrl, '_blank');
+    } else {
+      const blob = new Blob([content], { type: 'text/plain' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = fileName;
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
     toast({
       title: "Download started",
       description: `Downloading ${fileName}`,
     });
-    //todo: remove mock functionality - implement actual download
-    console.log('Download:', item);
   };
 
   const handlePreview = (item: Script | SearchResult) => {
@@ -118,37 +213,18 @@ export default function Home() {
   };
 
   const handleGenerate = () => {
-    setIsGenerating(true);
-    //todo: remove mock functionality - replace with actual OpenAI API call
-    setTimeout(() => {
-      const mockCode = `; Generated AHK v2 Script\n#Requires AutoHotkey v2.0\n\n; ${aiPrompt}\n\n^+e:: {\n  Send "your.email@example.com"\n}`;
-      setGeneratedCode(mockCode);
-      setIsGenerating(false);
-      toast({
-        title: "Script generated",
-        description: "Your AutoHotkey script has been generated successfully",
-      });
-    }, 2000);
+    if (aiPrompt.trim()) {
+      generateMutation.mutate(aiPrompt);
+    }
   };
 
   const handleAddScript = (script: Omit<Script, 'id'>) => {
-    const newScript: Script = {
-      ...script,
-      id: `personal-${Date.now()}`,
-    };
-    setPersonalScripts([...personalScripts, newScript]);
-    toast({
-      title: "Script added",
-      description: `${script.name} has been added to your library`,
-    });
+    addScriptMutation.mutate(script);
+    setAddDialogOpen(false);
   };
 
   const handleDeleteScript = (script: Script) => {
-    setPersonalScripts(personalScripts.filter(s => s.id !== script.id));
-    toast({
-      title: "Script deleted",
-      description: `${script.name} has been removed from your library`,
-    });
+    deleteScriptMutation.mutate(script.id);
   };
 
   const getPreviewCode = () => {
@@ -166,6 +242,9 @@ export default function Home() {
     }
     return previewScript.name;
   };
+
+  const searchResults = (searchMutation.data?.results as SearchResult[]) || [];
+  const personalScripts = (personalScriptsQuery.data?.scripts as Script[]) || [];
 
   return (
     <div className="min-h-screen bg-background">
@@ -206,22 +285,44 @@ export default function Home() {
           </TabsList>
 
           <TabsContent value="search" className="space-y-4">
-            {searchResults.length === 0 ? (
+            {searchMutation.isPending ? (
+              <div className="text-center py-12">
+                <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4 text-primary" />
+                <p className="text-muted-foreground">Searching GitHub for AutoHotkey scripts...</p>
+              </div>
+            ) : !hasSearched ? (
               <div className="text-center py-12">
                 <p className="text-muted-foreground">
                   Enter a search query to find AutoHotkey scripts on GitHub
                 </p>
+                <p className="text-sm text-muted-foreground mt-2">
+                  Try searching for: anti afk, window manager, clipboard, hotkeys, macros
+                </p>
+              </div>
+            ) : searchResults.length === 0 ? (
+              <div className="text-center py-12">
+                <p className="text-muted-foreground">
+                  No AutoHotkey scripts found for "{searchQuery}"
+                </p>
+                <p className="text-sm text-muted-foreground mt-2">
+                  Try different keywords or check your spelling
+                </p>
               </div>
             ) : (
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                {searchResults.map((result) => (
-                  <SearchResultCard
-                    key={result.id}
-                    result={result}
-                    onDownload={handleDownload}
-                  />
-                ))}
-              </div>
+              <>
+                <p className="text-sm text-muted-foreground">
+                  Found {searchResults.length} AutoHotkey scripts matching "{searchQuery}"
+                </p>
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                  {searchResults.map((result: SearchResult) => (
+                    <SearchResultCard
+                      key={result.id}
+                      result={result}
+                      onDownload={handleDownload}
+                    />
+                  ))}
+                </div>
+              </>
             )}
           </TabsContent>
 
@@ -245,7 +346,12 @@ export default function Home() {
                 Add Script
               </Button>
             </div>
-            {personalScripts.length === 0 ? (
+            {personalScriptsQuery.isLoading ? (
+              <div className="text-center py-12">
+                <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4 text-primary" />
+                <p className="text-muted-foreground">Loading your scripts...</p>
+              </div>
+            ) : personalScripts.length === 0 ? (
               <div className="text-center py-12">
                 <p className="text-muted-foreground mb-4">
                   No personal scripts yet. Add your first script!
@@ -253,7 +359,7 @@ export default function Home() {
               </div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {personalScripts.map((script) => (
+                {personalScripts.map((script: Script) => (
                   <ScriptCard
                     key={script.id}
                     script={script}
@@ -271,7 +377,7 @@ export default function Home() {
               prompt={aiPrompt}
               onPromptChange={setAiPrompt}
               onGenerate={handleGenerate}
-              isGenerating={isGenerating}
+              isGenerating={generateMutation.isPending}
             />
             {generatedCode && (
               <CodeViewer code={generatedCode} title="Generated Script" />
