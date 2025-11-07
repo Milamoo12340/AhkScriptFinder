@@ -148,9 +148,9 @@ WinGetClass, Class, ahk_id %WinID%
 WinGetTitle, Title, ahk_id %WinID%
 WinGet, Process, ProcessName, ahk_id %WinID%
 
-Info := "Window Information:`n"
-Info .= "Title: " Title "`n"
-Info .= "Class: " Class "`n"
+Info := "Window Information:\`n"
+Info .= "Title: " Title "\`n"
+Info .= "Class: " Class "\`n"
 Info .= "Process: " Process
 
 MsgBox, %Info%
@@ -256,6 +256,231 @@ SetTimer, RemoveToolTip, Off
 ToolTip
 return`,
     version: 'v1'
+  },
+  {
+    id: 'c9',
+    name: 'Roblox Anti-AFK',
+    description: 'Prevents getting kicked for inactivity in Roblox. Sends random movements every few minutes.',
+    tags: ['gaming', 'roblox', 'anti-afk'],
+    downloadCount: 9240,
+    content: `; Roblox Anti-AFK - AHK v2
+#Requires AutoHotkey v2.0
+#SingleInstance Force
+
+; Configuration
+afkInterval := 120000  ; 2 minutes in milliseconds
+randomMovement := true
+
+; Ensure Roblox window is active
+SetTimer(AntiAFK, afkInterval)
+
+AntiAFK() {
+    ; Check if Roblox window exists
+    if WinExist("ahk_exe RobloxPlayerBeta.exe") {
+        WinActivate
+        Sleep(100)
+        
+        ; Send random movement keys
+        if (randomMovement) {
+            movements := ["w", "a", "s", "d", "Space"]
+            randomKey := movements[Random(1, movements.Length)]
+            Send("{" randomKey " down}")
+            Sleep(50)
+            Send("{" randomKey " up}")
+        } else {
+            ; Just jump
+            Send("{Space}")
+        }
+        
+        ToolTip("Anti-AFK: Active")
+        SetTimer(() => ToolTip(), -2000)
+    }
+}
+
+; F10 to toggle on/off
+F10:: {
+    static isActive := true
+    isActive := !isActive
+    
+    if (isActive) {
+        SetTimer(AntiAFK, afkInterval)
+        ToolTip("Anti-AFK: Enabled")
+    } else {
+        SetTimer(AntiAFK, 0)
+        ToolTip("Anti-AFK: Disabled")
+    }
+    SetTimer(() => ToolTip(), -2000)
+}
+
+; F11 to exit
+F11::ExitApp`,
+    version: 'v2'
+  },
+  {
+    id: 'c10',
+    name: 'Roblox Auto Clicker',
+    description: 'Fast auto-clicker for Roblox games. Toggle with F1, adjustable speed.',
+    tags: ['gaming', 'roblox', 'clicker'],
+    downloadCount: 8150,
+    content: `; Roblox Auto Clicker - AHK v2
+#Requires AutoHotkey v2.0
+#SingleInstance Force
+
+clickDelay := 50  ; Milliseconds between clicks
+isActive := false
+
+F1:: {
+    global isActive
+    isActive := !isActive
+    
+    if (isActive) {
+        if WinExist("ahk_exe RobloxPlayerBeta.exe") {
+            WinActivate
+            SetTimer(AutoClick, clickDelay)
+            ToolTip("Auto Clicker: ON")
+        } else {
+            isActive := false
+            ToolTip("Roblox not found!")
+        }
+    } else {
+        SetTimer(AutoClick, 0)
+        ToolTip("Auto Clicker: OFF")
+    }
+    SetTimer(() => ToolTip(), -2000)
+}
+
+AutoClick() {
+    if WinActive("ahk_exe RobloxPlayerBeta.exe") {
+        Click
+    }
+}
+
+; Adjust speed with +/- keys
+NumpadAdd:: {
+    global clickDelay
+    clickDelay := Max(10, clickDelay - 10)
+    ToolTip("Click Speed: " clickDelay "ms")
+    SetTimer(() => ToolTip(), -1500)
+}
+
+NumpadSub:: {
+    global clickDelay
+    clickDelay := Min(500, clickDelay + 10)
+    ToolTip("Click Speed: " clickDelay "ms")
+    SetTimer(() => ToolTip(), -1500)
+}
+
+F2::ExitApp`,
+    version: 'v2'
+  },
+  {
+    id: 'c11',
+    name: 'Roblox Pet Simulator Auto Hatch',
+    description: 'Automatically hatches eggs in Pet Simulator games. Press E key repeatedly.',
+    tags: ['gaming', 'roblox', 'pet-simulator'],
+    downloadCount: 5680,
+    content: `; Roblox Pet Simulator Auto Hatch - AHK v2
+#Requires AutoHotkey v2.0
+#SingleInstance Force
+
+hatchKey := "e"
+hatchDelay := 100
+isRunning := false
+
+F1:: {
+    global isRunning
+    isRunning := !isRunning
+    
+    if (isRunning) {
+        if WinExist("ahk_exe RobloxPlayerBeta.exe") {
+            WinActivate
+            SetTimer(AutoHatch, hatchDelay)
+            ToolTip("Auto Hatch: ON")
+        } else {
+            isRunning := false
+            ToolTip("Roblox not found!")
+        }
+    } else {
+        SetTimer(AutoHatch, 0)
+        ToolTip("Auto Hatch: OFF")
+    }
+    SetTimer(() => ToolTip(), -2000)
+}
+
+AutoHatch() {
+    global hatchKey
+    if WinActive("ahk_exe RobloxPlayerBeta.exe") {
+        Send("{" hatchKey "}")
+    }
+}
+
+F2::ExitApp`,
+    version: 'v2'
+  },
+  {
+    id: 'c12',
+    name: 'Roblox Auto Farm (WASD Walk)',
+    description: 'Auto-walks in Roblox for farming games. Moves in patterns to collect items.',
+    tags: ['gaming', 'roblox', 'farming'],
+    downloadCount: 6920,
+    content: `; Roblox Auto Farm - AHK v2
+#Requires AutoHotkey v2.0
+#SingleInstance Force
+
+walkTime := 3000
+isRunning := false
+
+F1:: {
+    global isRunning
+    isRunning := !isRunning
+    
+    if (isRunning) {
+        if WinExist("ahk_exe RobloxPlayerBeta.exe") {
+            WinActivate
+            AutoFarm()
+            ToolTip("Auto Farm: ON")
+        } else {
+            isRunning := false
+            ToolTip("Roblox not found!")
+        }
+    } else {
+        ToolTip("Auto Farm: OFF")
+    }
+    SetTimer(() => ToolTip(), -2000)
+}
+
+AutoFarm() {
+    global isRunning, walkTime
+    
+    while (isRunning && WinActive("ahk_exe RobloxPlayerBeta.exe")) {
+        ; Walk forward
+        Send("{w down}")
+        Sleep(walkTime)
+        Send("{w up}")
+        Sleep(500)
+        
+        ; Turn right and walk
+        Send("{d down}")
+        Sleep(1000)
+        Send("{d up}")
+        Sleep(500)
+        
+        ; Walk forward
+        Send("{w down}")
+        Sleep(walkTime)
+        Send("{w up}")
+        Sleep(500)
+        
+        ; Turn left and walk
+        Send("{a down}")
+        Sleep(1000)
+        Send("{a up}")
+        Sleep(500)
+    }
+}
+
+F2::ExitApp`,
+    version: 'v2'
   }
 ];
 
@@ -456,6 +681,9 @@ export default function Home() {
             <TabsTrigger value="ai" data-testid="tab-ai">
               AI Generator
             </TabsTrigger>
+            <TabsTrigger value="tester" data-testid="tab-tester">
+              Script Tester
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="search" className="space-y-4">
@@ -559,6 +787,121 @@ export default function Home() {
             {generatedCode && (
               <CodeViewer code={generatedCode} title="Generated Script" />
             )}
+          </TabsContent>
+
+          <TabsContent value="tester" className="space-y-4">
+            <div className="bg-card rounded-lg border p-6 space-y-4">
+              <div>
+                <h2 className="text-2xl font-bold mb-2">Script Tester & Validator</h2>
+                <p className="text-muted-foreground mb-4">
+                  Test and validate your AutoHotkey scripts before downloading. This tool checks for syntax errors and provides helpful feedback.
+                </p>
+              </div>
+
+              <div className="space-y-4">
+                <div>
+                  <label className="text-sm font-medium mb-2 block">Paste your AHK script below:</label>
+                  <textarea
+                    className="w-full min-h-[300px] p-4 rounded-md border bg-background font-mono text-sm"
+                    placeholder="Paste your AutoHotkey v1 or v2 script here...
+
+Example:
+#Requires AutoHotkey v2.0
+
+F1::MsgBox('Hello World!')"
+                    value={aiPrompt}
+                    onChange={(e) => setAiPrompt(e.target.value)}
+                  />
+                </div>
+
+                <div className="flex gap-2">
+                  <Button 
+                    onClick={() => {
+                      if (!aiPrompt.trim()) {
+                        toast({
+                          title: "Empty script",
+                          description: "Please paste a script to test",
+                          variant: "destructive"
+                        });
+                        return;
+                      }
+                      
+                      const isV2 = aiPrompt.includes('#Requires AutoHotkey v2') || aiPrompt.includes('AutoHotkey v2');
+                      const hasHotkeys = /^[#^!+]*[a-zA-Z0-9]+::/m.test(aiPrompt);
+                      const hasFunctions = /\w+\([^)]*\)\s*{/.test(aiPrompt);
+                      
+                      let warnings = [];
+                      if (!isV2 && !aiPrompt.includes('#NoEnv')) {
+                        warnings.push('Consider adding #NoEnv for AHK v1 scripts');
+                      }
+                      if (!hasHotkeys && !hasFunctions) {
+                        warnings.push('No hotkeys or functions detected - script may not do anything');
+                      }
+                      
+                      toast({
+                        title: "Script Analysis",
+                        description: isV2 
+                          ? "✓ AutoHotkey v2 script detected" 
+                          : "✓ AutoHotkey v1 script detected" + (warnings.length ? "\n⚠ " + warnings.join(", ") : ""),
+                      });
+                    }}
+                  >
+                    Validate Script
+                  </Button>
+                  
+                  <Button 
+                    variant="outline"
+                    onClick={() => {
+                      if (!aiPrompt.trim()) return;
+                      const blob = new Blob([aiPrompt], { type: 'text/plain' });
+                      const url = URL.createObjectURL(blob);
+                      const a = document.createElement('a');
+                      a.href = url;
+                      a.download = 'tested-script.ahk';
+                      a.click();
+                      URL.revokeObjectURL(url);
+                      toast({
+                        title: "Download started",
+                        description: "Your tested script has been downloaded"
+                      });
+                    }}
+                  >
+                    Download Script
+                  </Button>
+                </div>
+
+                <div className="bg-muted rounded-md p-4 space-y-2">
+                  <h3 className="font-semibold text-sm">Testing Tips:</h3>
+                  <ul className="text-sm text-muted-foreground space-y-1 list-disc list-inside">
+                    <li>AHK v2 scripts should start with <code className="bg-background px-1 rounded">#Requires AutoHotkey v2.0</code></li>
+                    <li>AHK v1 scripts should include <code className="bg-background px-1 rounded">#NoEnv</code> and <code className="bg-background px-1 rounded">#SingleInstance Force</code></li>
+                    <li>Test scripts in a safe environment before using them in production</li>
+                    <li>Always include exit hotkeys like <code className="bg-background px-1 rounded">F2::ExitApp</code></li>
+                    <li>Use <code className="bg-background px-1 rounded">ToolTip</code> for debugging to see if hotkeys are triggered</li>
+                  </ul>
+                </div>
+
+                <div className="border-t pt-4">
+                  <h3 className="font-semibold mb-2">Quick Test Scripts</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      onClick={() => setAiPrompt(`#Requires AutoHotkey v2.0\n\nF1::MsgBox("Test successful!")\nF2::ExitApp`)}
+                    >
+                      Load V2 Test
+                    </Button>
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      onClick={() => setAiPrompt(`#NoEnv\n#SingleInstance Force\n\nF1::MsgBox, Test successful!\nF2::ExitApp`)}
+                    >
+                      Load V1 Test
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            </div>
           </TabsContent>
         </Tabs>
       </main>
