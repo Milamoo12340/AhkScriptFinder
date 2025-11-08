@@ -109,6 +109,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.get("/api/scripts/curated", async (req, res) => {
+    try {
+      const scripts = await storage.getCuratedScripts();
+      res.json({ success: true, scripts });
+    } catch (error) {
+      console.error('Error fetching curated scripts:', error);
+      res.status(500).json({ success: false, error: 'Failed to fetch curated scripts' });
+    }
+  });
+
   app.get("/api/scripts/personal", async (req, res) => {
     try {
       const scripts = await storage.getPersonalScripts();
@@ -176,6 +186,43 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error('Error generating script:', error);
       res.status(500).json({ success: false, error: 'Failed to generate script' });
+    }
+  });
+
+  app.post("/api/ai/transcribe", async (req, res) => {
+    try {
+      const { pythonCode, ahkCode, issue, operation } = req.body;
+      
+      let systemPrompt = '';
+      let userPrompt = '';
+
+      if (operation === 'convert') {
+        systemPrompt = 'You are an expert in both Python and AutoHotkey. Convert Python code to AutoHotkey v1 with accurate functionality, proper syntax, and helpful comments. Provide ONLY the AutoHotkey code without explanations.';
+        userPrompt = `Convert this Python code to AutoHotkey:\n\n${pythonCode}`;
+      } else if (operation === 'validate') {
+        systemPrompt = 'You are an expert code reviewer for Python-to-AutoHotkey conversions. Analyze if the conversion is accurate and identify any issues.';
+        userPrompt = `Original Python:\n${pythonCode}\n\nConverted AHK:\n${ahkCode}\n\nIs this conversion accurate? List any issues or confirm it's correct.`;
+      } else if (operation === 'debug') {
+        systemPrompt = 'You are an expert AutoHotkey debugger. Fix issues in converted code and provide the corrected version. Provide ONLY the fixed AutoHotkey code.';
+        userPrompt = `Original Python:\n${pythonCode}\n\nCurrent AHK:\n${ahkCode}\n\nIssue: ${issue}\n\nProvide the fixed AutoHotkey code.`;
+      } else {
+        return res.status(400).json({ success: false, error: 'Invalid operation' });
+      }
+
+      const response = await openai.chat.completions.create({
+        model: 'gpt-4o-mini',
+        messages: [
+          { role: 'system', content: systemPrompt },
+          { role: 'user', content: userPrompt },
+        ],
+        temperature: 0.3,
+      });
+
+      const result = response.choices[0]?.message?.content || '';
+      res.json({ success: true, result });
+    } catch (error) {
+      console.error('Error in transcriber:', error);
+      res.status(500).json({ success: false, error: 'Failed to process request' });
     }
   });
 

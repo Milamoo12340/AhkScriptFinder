@@ -45,6 +45,9 @@ export default function PS99Tools() {
   };
 
   const formatNumber = (num: number): string => {
+    if (num === null || num === undefined || isNaN(num)) {
+      return "0";
+    }
     if (num >= 1000000) {
       return (num / 1000000).toFixed(2) + "M";
     } else if (num >= 1000) {

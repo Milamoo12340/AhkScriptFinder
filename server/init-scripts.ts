@@ -3,14 +3,14 @@ import { readFileSync } from "fs";
 import { join } from "path";
 
 export async function initializeScripts() {
-  const scripts = await storage.getPersonalScripts();
+  const curatedScripts = await storage.getCuratedScripts();
   
-  if (scripts.length > 0) {
-    console.log('Scripts already initialized');
+  if (curatedScripts.length > 0) {
+    console.log('Curated scripts already initialized');
     return;
   }
 
-  console.log('Initializing default scripts...');
+  console.log('Initializing curated scripts...');
 
   const fischMacro = `#SingleInstance Force
 setkeydelay, -1
@@ -120,7 +120,7 @@ return
 F2::ExitApp`;
 
   try {
-    await storage.createPersonalScript({
+    await storage.createCuratedScript({
       name: "Fisch Macro V11.2",
       description: "Advanced fishing automation macro for Roblox Fisch game. Features auto-graphics lowering, camera positioning, shake detection (click/navigation modes), and minigame solver with stabilization.",
       content: fischMacro,
@@ -128,7 +128,7 @@ F2::ExitApp`;
       version: "v1"
     });
 
-    await storage.createPersonalScript({
+    await storage.createCuratedScript({
       name: "PS99 Enhanced Clan Tracker",
       description: "Real-time clan competition tracker for Pet Simulator 99 using Big Games API. Track multiple clans, view live battle data, competition countdowns, and points comparison with auto-updates.",
       content: ps99ClanTracker,
@@ -136,7 +136,7 @@ F2::ExitApp`;
       version: "v1"
     });
 
-    await storage.createPersonalScript({
+    await storage.createCuratedScript({
       name: "InkGame AutoRoll",
       description: "Auto-roller for Ink Game power rolls in Roblox. Optimized for 1920x1080 or 2560x1080 resolution with 1600 DPI. Press F1 to start, F2 to stop.",
       content: inkGameAutoRoll,
@@ -144,7 +144,7 @@ F2::ExitApp`;
       version: "v1"
     });
 
-    console.log('✓ Successfully initialized 3 default scripts');
+    console.log('✓ Successfully initialized 3 curated scripts');
   } catch (error) {
     console.error('Error initializing scripts:', error);
   }

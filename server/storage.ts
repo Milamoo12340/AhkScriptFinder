@@ -6,9 +6,12 @@ export interface IStorage {
   getUserByUsername(username: string): Promise<User | undefined>;
   createUser(user: InsertUser): Promise<User>;
   
+  getAllScripts(): Promise<PersonalScript[]>;
+  getCuratedScripts(): Promise<PersonalScript[]>;
   getPersonalScripts(): Promise<PersonalScript[]>;
   getPersonalScript(id: string): Promise<PersonalScript | undefined>;
   createPersonalScript(script: InsertPersonalScript): Promise<PersonalScript>;
+  createCuratedScript(script: InsertPersonalScript): Promise<PersonalScript>;
   deletePersonalScript(id: string): Promise<boolean>;
 }
 
@@ -38,8 +41,16 @@ export class MemStorage implements IStorage {
     return user;
   }
 
-  async getPersonalScripts(): Promise<PersonalScript[]> {
+  async getAllScripts(): Promise<PersonalScript[]> {
     return Array.from(this.personalScripts.values());
+  }
+
+  async getCuratedScripts(): Promise<PersonalScript[]> {
+    return Array.from(this.personalScripts.values()).filter(script => !script.isPersonal);
+  }
+
+  async getPersonalScripts(): Promise<PersonalScript[]> {
+    return Array.from(this.personalScripts.values()).filter(script => script.isPersonal);
   }
 
   async getPersonalScript(id: string): Promise<PersonalScript | undefined> {
@@ -49,6 +60,13 @@ export class MemStorage implements IStorage {
   async createPersonalScript(insertScript: InsertPersonalScript): Promise<PersonalScript> {
     const id = randomUUID();
     const script: PersonalScript = { ...insertScript, id, isPersonal: true };
+    this.personalScripts.set(id, script);
+    return script;
+  }
+
+  async createCuratedScript(insertScript: InsertPersonalScript): Promise<PersonalScript> {
+    const id = randomUUID();
+    const script: PersonalScript = { ...insertScript, id, isPersonal: false };
     this.personalScripts.set(id, script);
     return script;
   }
