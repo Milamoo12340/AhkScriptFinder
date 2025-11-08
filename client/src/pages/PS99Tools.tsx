@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Search, Trophy, TrendingUp, Users, Clock, Award, Coins } from "lucide-react";
+import { Search, Trophy, TrendingUp, Users, Clock, Award, Coins, Gem } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import type { ClanData, ClanBattleData, RAPItem } from "@shared/schema";
 
@@ -353,30 +353,32 @@ export default function PS99Tools() {
                           <Trophy className="w-4 h-4" />
                           Goal
                         </p>
-                        <p className="font-bold text-lg">
-                          {formatNumber(clanBattle.data.GoalDiamonds)} 💎
+                        <p className="font-bold text-lg flex items-center gap-1">
+                          {formatNumber(clanBattle.data.GoalDiamonds)} <Gem className="w-4 h-4" />
                         </p>
                       </div>
                     </div>
 
-                    <div className="space-y-2">
-                      <p className="text-sm font-semibold">Participating Clans:</p>
-                      <div className="grid grid-cols-2 gap-2">
-                        {clanBattle.data.Clans.map((clan: string) => (
-                          <Badge
-                            key={clan}
-                            variant="outline"
-                            className="justify-center py-2 cursor-pointer hover-elevate"
-                            onClick={() => {
-                              setSelectedClan(clan);
-                              setClanSearchInput(clan);
-                            }}
-                          >
-                            {clan}
-                          </Badge>
-                        ))}
+                    {clanBattle.data.Clans && clanBattle.data.Clans.length > 0 && (
+                      <div className="space-y-2">
+                        <p className="text-sm font-semibold">Participating Clans:</p>
+                        <div className="grid grid-cols-2 gap-2">
+                          {clanBattle.data.Clans.map((clan: string) => (
+                            <Badge
+                              key={clan}
+                              variant="outline"
+                              className="justify-center py-2 cursor-pointer hover-elevate"
+                              onClick={() => {
+                                setSelectedClan(clan);
+                                setClanSearchInput(clan);
+                              }}
+                            >
+                              {clan}
+                            </Badge>
+                          ))}
+                        </div>
                       </div>
-                    </div>
+                    )}
 
                     <div className="flex items-center gap-2 text-xs text-muted-foreground">
                       <Clock className="w-3 h-3" />
