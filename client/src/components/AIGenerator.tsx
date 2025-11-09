@@ -30,9 +30,9 @@ export default function AIGenerator({
               <Sparkles className="h-6 w-6 text-purple-700 dark:text-purple-400" />
             </div>
             <div className="flex-1">
-              <CardTitle className="text-xl tracking-tight">AI Script Generator</CardTitle>
+              <CardTitle className="text-xl tracking-tight">AI Macro Generator</CardTitle>
               <CardDescription className="mt-1">
-                Describe what you want your AutoHotkey script to do, and AI will generate it for you
+                Describe what you want your AutoHotkey macro to do, and AI will generate it for you
               </CardDescription>
             </div>
             <Badge variant="secondary" className="bg-purple-600 text-white hover:bg-purple-700 shadow-sm">
@@ -43,9 +43,9 @@ export default function AIGenerator({
         
         <CardContent className="space-y-4">
           <div className="space-y-2">
-            <label className="text-sm font-semibold text-muted-foreground">Describe Your Script</label>
+            <label className="text-sm font-semibold text-muted-foreground">Describe Your Macro</label>
             <Textarea
-              placeholder="Example: Create a script that types my email address when I press Ctrl+Shift+E"
+              placeholder="Example: Create a macro that types my email address when I press Ctrl+Shift+E"
               value={prompt}
               onChange={(e) => onPromptChange(e.target.value)}
               className="min-h-32 resize-none border-2 focus:border-purple-500"
@@ -64,12 +64,12 @@ export default function AIGenerator({
               {isGenerating ? (
                 <>
                   <Loader2 className="h-5 w-5 mr-2 animate-spin" />
-                  Generating Script...
+                  Generating Macro...
                 </>
               ) : (
                 <>
                   <Sparkles className="h-5 w-5 mr-2" />
-                  Generate AutoHotkey Script
+                  Generate AutoHotkey Macro
                 </>
               )}
             </Button>

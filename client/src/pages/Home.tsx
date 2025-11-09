@@ -8,7 +8,7 @@ import SearchResultCard, { SearchResult } from "@/components/SearchResultCard";
 import MacroCard, { Macro } from "@/components/MacroCard";
 import AIGenerator from "@/components/AIGenerator";
 import CodeViewer from "@/components/CodeViewer";
-import AddScriptDialog from "@/components/AddScriptDialog";
+import AddMacroDialog from "@/components/AddMacroDialog";
 import ThemeToggle from "@/components/ThemeToggle";
 import { useToast } from "@/hooks/use-toast";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -636,8 +636,8 @@ export default function Home() {
     onSuccess: (data) => {
       if (data.success) {
         const totalText = data.totalCount > data.results.length 
-          ? `Found ${data.results.length} of ${data.totalCount} total AutoHotkey scripts`
-          : `Found ${data.results.length} AutoHotkey scripts`;
+          ? `Found ${data.results.length} of ${data.totalCount} total results`
+          : `Found ${data.results.length} results`;
         toast({
           title: "Search completed",
           description: totalText,
@@ -863,8 +863,8 @@ export default function Home() {
           <div className="relative bg-gradient-to-br from-slate-800/95 to-slate-900/95 border-2 border-emerald-500/30 p-8 rounded-2xl shadow-2xl shadow-emerald-500/10">
             <div className="mb-6 relative">
               <div className="absolute inset-0 bg-gradient-to-r from-emerald-500/20 to-teal-500/20 rounded-xl blur"></div>
-              <div className="relative bg-gradient-to-br from-slate-800 to-slate-900 border border-emerald-500/40 rounded-xl p-6 shadow-xl">
-                <h2 className="text-3xl font-black bg-gradient-to-r from-emerald-400 to-teal-400 bg-clip-text text-transparent tracking-tight">AUTOHOTKEY MACRO TOOLS</h2>
+              <div className="relative bg-gradient-to-br from-slate-800 to-slate-900 border border-emerald-500/40 rounded-xl p-5 shadow-xl">
+                <h2 className="text-xl font-bold bg-gradient-to-r from-emerald-400 to-teal-400 bg-clip-text text-transparent tracking-tight">AutoHotkey Macro Tools</h2>
                 <p className="text-slate-300 mt-2 text-sm leading-relaxed">Search GitHub, browse curated macros, manage your library, and generate custom AHK macros</p>
               </div>
             </div>
@@ -900,12 +900,12 @@ export default function Home() {
             {searchMutation.isPending ? (
               <div className="text-center py-12">
                 <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4 text-emerald-400" />
-                <p className="text-slate-400">Searching GitHub for AutoHotkey scripts...</p>
+                <p className="text-slate-400">Searching GitHub for AutoHotkey code...</p>
               </div>
             ) : !hasSearched ? (
               <div className="text-center py-12">
                 <p className="text-slate-300 text-lg">
-                  Enter a search query to find AutoHotkey scripts on GitHub
+                  Enter a search query to find AutoHotkey code on GitHub
                 </p>
                 <p className="text-sm text-slate-400 mt-3">
                   Try searching for: anti afk, window manager, clipboard, hotkeys, macros
@@ -914,7 +914,7 @@ export default function Home() {
             ) : searchResults.length === 0 ? (
               <div className="text-center py-12">
                 <p className="text-slate-300 text-lg">
-                  No AutoHotkey scripts found for "{searchQuery}"
+                  No AutoHotkey code found for "{searchQuery}"
                 </p>
                 <p className="text-sm text-slate-400 mt-3">
                   Try different keywords or check your spelling
@@ -923,7 +923,7 @@ export default function Home() {
             ) : (
               <>
                 <p className="text-sm text-emerald-400 font-semibold">
-                  Found {searchResults.length} AutoHotkey scripts matching "{searchQuery}"
+                  Found {searchResults.length} results matching "{searchQuery}"
                   {searchMutation.data?.totalCount && searchMutation.data.totalCount > searchResults.length && (
                     <span> (showing first {searchResults.length} of {searchMutation.data.totalCount} total results)</span>
                   )}
@@ -1243,7 +1243,7 @@ F1::MsgBox('Hello World!')"
         </div>
       </main>
 
-      <AddScriptDialog
+      <AddMacroDialog
         open={addDialogOpen}
         onOpenChange={setAddDialogOpen}
         onSave={handleAddMacro}

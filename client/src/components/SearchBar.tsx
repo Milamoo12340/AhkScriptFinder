@@ -9,7 +9,7 @@ interface SearchBarProps {
   placeholder?: string;
 }
 
-export default function SearchBar({ value, onChange, onSearch, placeholder = "Search for AutoHotkey scripts..." }: SearchBarProps) {
+export default function SearchBar({ value, onChange, onSearch, placeholder = "Search for AutoHotkey macros..." }: SearchBarProps) {
   const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') {
       onSearch();
@@ -17,23 +17,23 @@ export default function SearchBar({ value, onChange, onSearch, placeholder = "Se
   };
 
   return (
-    <div className="flex gap-2 w-full">
+    <div className="flex gap-3 w-full">
       <div className="relative flex-1">
-        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-muted-foreground pointer-events-none" />
+        <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 h-6 w-6 text-muted-foreground pointer-events-none" />
         <Input
           type="search"
           placeholder={placeholder}
           value={value}
           onChange={(e) => onChange(e.target.value)}
           onKeyPress={handleKeyPress}
-          className="pl-10 h-12 text-base"
+          className="pl-12 h-16 text-lg"
           data-testid="input-search"
         />
       </div>
       <Button 
         onClick={onSearch}
         size="lg"
-        className="h-12 px-6"
+        className="h-16 px-8 text-lg"
         data-testid="button-search"
       >
         Search
