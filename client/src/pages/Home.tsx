@@ -801,55 +801,6 @@ export default function Home() {
       </header>
 
       <main className="max-w-7xl mx-auto px-4 md:px-8 py-6 md:py-8">
-        <div className="mb-8 grid md:grid-cols-2 gap-6">
-          <Link href="/ps99-tools" data-testid="link-ps99-tools-card">
-            <div className="relative group">
-              <div className="absolute inset-0 bg-gradient-to-r from-violet-500 to-purple-500 rounded-xl blur-md opacity-20 group-hover:opacity-40 transition-opacity"></div>
-              <Card className="relative p-5 bg-gradient-to-br from-slate-800/90 to-slate-900/90 border-2 border-violet-500/30 hover:border-violet-400/50 transition-all duration-300 cursor-pointer shadow-2xl shadow-violet-500/20" data-testid="card-ps99-tools">
-                <div className="flex items-center justify-between mb-3">
-                  <div className="flex items-center gap-2">
-                    <div className="p-2 bg-violet-500/20 rounded-lg ring-2 ring-violet-500/30">
-                      <Trophy className="w-5 h-5 text-violet-400" />
-                    </div>
-                    <h2 className="text-lg font-black text-violet-300 tracking-tight">PS99 TOOLS</h2>
-                  </div>
-                  <Gamepad2 className="w-6 h-6 text-violet-500/40" />
-                </div>
-                <p className="text-slate-300 text-sm mb-4 leading-relaxed">
-                  Real-time Pet Simulator 99 clan tracker, RAP checker, and battle monitor using Big Games API
-                </p>
-                <div className="flex items-center gap-2 text-sm font-semibold text-violet-400 group-hover:text-violet-300 transition-colors">
-                  <span>EXPLORE LIVE DATA</span>
-                  <ArrowRight className="w-4 h-4 group-hover:translate-x-2 transition-transform" />
-                </div>
-              </Card>
-            </div>
-          </Link>
-
-          <Link href="/python-transcriber" data-testid="link-python-transcriber-card">
-            <div className="relative group">
-              <div className="absolute inset-0 bg-gradient-to-r from-fuchsia-500 to-pink-500 rounded-xl blur-md opacity-20 group-hover:opacity-40 transition-opacity"></div>
-              <Card className="relative p-5 bg-gradient-to-br from-slate-800/90 to-slate-900/90 border-2 border-fuchsia-500/30 hover:border-fuchsia-400/50 transition-all duration-300 cursor-pointer shadow-2xl shadow-fuchsia-500/20" data-testid="card-python-transcriber">
-                <div className="flex items-center justify-between mb-3">
-                  <div className="flex items-center gap-2">
-                    <div className="p-2 bg-fuchsia-500/20 rounded-lg ring-2 ring-fuchsia-500/30">
-                      <Code2 className="w-5 h-5 text-fuchsia-400" />
-                    </div>
-                    <h2 className="text-lg font-black text-fuchsia-300 tracking-tight">PYTHON TRANSCRIBER</h2>
-                  </div>
-                  <Sparkles className="w-6 h-6 text-fuchsia-500/40" />
-                </div>
-                <p className="text-slate-300 text-sm mb-4 leading-relaxed">
-                  AI-powered Python to AutoHotkey converter with validation, debugging, and instant downloads
-                </p>
-                <div className="flex items-center gap-2 text-sm font-semibold text-fuchsia-400 group-hover:text-fuchsia-300 transition-colors">
-                  <span>CONVERT CODE NOW</span>
-                  <ArrowRight className="w-4 h-4 group-hover:translate-x-2 transition-transform" />
-                </div>
-              </Card>
-            </div>
-          </Link>
-        </div>
         <div className="mb-6">
           <SearchBar
             value={searchQuery}
@@ -1240,6 +1191,56 @@ F1::MsgBox('Hello World!')"
           </TabsContent>
             </Tabs>
           </div>
+        </div>
+
+        <div className="mt-8 grid md:grid-cols-2 gap-6">
+          <Link href="/ps99-tools" data-testid="link-ps99-tools-card">
+            <div className="relative group">
+              <div className="absolute inset-0 bg-gradient-to-r from-violet-500 to-purple-500 rounded-xl blur-md opacity-20 group-hover:opacity-40 transition-opacity"></div>
+              <Card className="relative p-4 bg-gradient-to-br from-slate-800/90 to-slate-900/90 border-2 border-violet-500/30 hover:border-violet-400/50 transition-all duration-300 cursor-pointer shadow-2xl shadow-violet-500/20" data-testid="card-ps99-tools">
+                <div className="flex items-center justify-between mb-2">
+                  <div className="flex items-center gap-2">
+                    <div className="p-2 bg-violet-500/20 rounded-lg ring-2 ring-violet-500/30">
+                      <Trophy className="w-4 h-4 text-violet-400" />
+                    </div>
+                    <h2 className="text-base font-semibold text-violet-300">PS99 Tools</h2>
+                  </div>
+                  <Gamepad2 className="w-5 h-5 text-violet-500/40" />
+                </div>
+                <p className="text-slate-300 text-sm mb-3 leading-relaxed">
+                  Real-time Pet Simulator 99 clan tracker, RAP checker, and battle monitor
+                </p>
+                <div className="flex items-center gap-2 text-xs font-semibold text-violet-400 group-hover:text-violet-300 transition-colors">
+                  <span>Explore Live Data</span>
+                  <ArrowRight className="w-3 h-3 group-hover:translate-x-2 transition-transform" />
+                </div>
+              </Card>
+            </div>
+          </Link>
+
+          <Link href="/python-transcriber" data-testid="link-python-transcriber-card">
+            <div className="relative group">
+              <div className="absolute inset-0 bg-gradient-to-r from-fuchsia-500 to-pink-500 rounded-xl blur-md opacity-20 group-hover:opacity-40 transition-opacity"></div>
+              <Card className="relative p-4 bg-gradient-to-br from-slate-800/90 to-slate-900/90 border-2 border-fuchsia-500/30 hover:border-fuchsia-400/50 transition-all duration-300 cursor-pointer shadow-2xl shadow-fuchsia-500/20" data-testid="card-python-transcriber">
+                <div className="flex items-center justify-between mb-2">
+                  <div className="flex items-center gap-2">
+                    <div className="p-2 bg-fuchsia-500/20 rounded-lg ring-2 ring-fuchsia-500/30">
+                      <Code2 className="w-4 h-4 text-fuchsia-400" />
+                    </div>
+                    <h2 className="text-base font-semibold text-fuchsia-300">Python Transcriber</h2>
+                  </div>
+                  <Sparkles className="w-5 h-5 text-fuchsia-500/40" />
+                </div>
+                <p className="text-slate-300 text-sm mb-3 leading-relaxed">
+                  AI-powered Python to AutoHotkey converter with validation and debugging
+                </p>
+                <div className="flex items-center gap-2 text-xs font-semibold text-fuchsia-400 group-hover:text-fuchsia-300 transition-colors">
+                  <span>Convert Code Now</span>
+                  <ArrowRight className="w-3 h-3 group-hover:translate-x-2 transition-transform" />
+                </div>
+              </Card>
+            </div>
+          </Link>
         </div>
       </main>
 

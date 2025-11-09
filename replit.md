@@ -1,10 +1,24 @@
-# AHK Script Finder
+# Milamoos AutoHotkey Macro Hub
 
 ## Overview
 
-AHK Script Finder is a web application that helps users discover, manage, and generate AutoHotkey (AHK) scripts. The platform enables users to search GitHub for AHK scripts (both v1 and v2), browse curated collections, maintain a personal script library, and generate custom scripts using AI assistance. Built as a full-stack TypeScript application with a React frontend and Express backend, it provides a modern, developer-friendly interface for the AutoHotkey community.
+Milamoos AutoHotkey Macro Hub is a web application that helps users discover, manage, and generate AutoHotkey (AHK) macros and code. The platform enables users to search GitHub for AHK code (both v1 and v2), browse curated macro collections, maintain a personal macro library, and generate custom macros using AI assistance. Built as a full-stack TypeScript application with a React frontend and Express backend, it provides a modern, gaming-focused interface for the AutoHotkey community.
 
-**Recent Changes (Nov 8, 2025):**
+**Recent Changes (Nov 9, 2025):**
+- **Complete "Script" to "Macro" Rebranding**: Comprehensive terminology change across entire application
+  - Backend: Schema (PersonalMacro), storage methods, API routes (/api/macros/*), initialization files
+  - Frontend: MacroCard, AddMacroDialog, AIGenerator all use "macro" terminology
+  - UI text: Personal library uses "macro", GitHub search uses "code", Script Tester keeps "script"
+  - App title updated to "Milamoos AutoHotkey Macro Hub"
+- **Enhanced Search Bar**: Significantly enlarged for better usability
+  - Height increased from h-12 (48px) to h-16 (64px)
+  - Text size increased from text-base to text-lg
+  - Icon and button sizes matched to new height
+  - Placeholder updated to "Search for AutoHotkey macros..."
+- **Section Header Refinement**: Reduced from text-3xl font-black to text-xl font-bold for better visual hierarchy
+- **Testing**: Full end-to-end testing completed - all features working correctly with new terminology
+
+**Previous Changes (Nov 8, 2025):**
 - **Major Professional Dark Theme Redesign**: Complete visual overhaul inspired by OMEN Gaming Hub and Razer Cortex
   - Dark sophisticated backgrounds (slate-950/900 gradients) replacing light blue theme
   - Professional glowing effects with blur opacity transitions on hover
@@ -37,7 +51,7 @@ Preferred communication style: Simple, everyday language.
 - Tailwind CSS for utility-first styling with custom design tokens
 - Design approach follows Material Design and GitHub-inspired patterns for developer-focused aesthetics
 - Custom theming system supporting light/dark modes with HSL color variables
-- Component library includes cards, dialogs, buttons, forms, and specialized components (AIGenerator, CodeViewer, SearchBar, ScriptCard, SearchResultCard)
+- Component library includes cards, dialogs, buttons, forms, and specialized components (AIGenerator, CodeViewer, SearchBar, MacroCard, SearchResultCard)
 
 **State Management**
 - TanStack Query (React Query) for server state management, caching, and data fetching
@@ -45,9 +59,9 @@ Preferred communication style: Simple, everyday language.
 - Custom hooks (`use-toast`, `use-mobile`) for reusable functionality
 
 **Key Features**
-- GitHub script search with syntax preview and metadata display
-- Personal script library with CRUD operations
-- AI-powered script generation interface
+- GitHub code search with syntax preview and metadata display
+- Personal macro library with CRUD operations
+- AI-powered macro generation interface
 - Code syntax highlighting and copy functionality
 - Responsive design with mobile-first approach
 - **Pet Simulator 99 Tools** (Real-time Big Games API integration)
@@ -83,7 +97,7 @@ Preferred communication style: Simple, everyday language.
 ### Data Storage Solutions
 
 **Current Implementation**
-- In-memory storage (MemStorage class) for users and personal scripts
+- In-memory storage (MemStorage class) for users and personal macros
 - UUID-based identifiers using Node's crypto module
 - Map-based data structures for fast lookups
 
@@ -95,7 +109,7 @@ Preferred communication style: Simple, everyday language.
 
 **Data Models**
 - User: id, username, password
-- PersonalScript: id, name, description, content, tags, version
+- PersonalMacro: id, name, description, content, tags, version
 - GitHubSearchResult: repository metadata, code preview, download URL, language version
 - Zod schemas provide runtime validation and TypeScript types
 
@@ -103,7 +117,7 @@ Preferred communication style: Simple, everyday language.
 
 **Third-Party APIs**
 - GitHub Code Search API (api.github.com/search/code)
-  - Used for discovering AHK scripts across public repositories
+  - Used for discovering AHK code across public repositories
   - Requires User-Agent header
   - Filters by .ahk file extension
   - Returns code preview, repository metadata, and download URLs

@@ -181,9 +181,10 @@ export default function PS99Tools() {
                     onChange={(e) => setClanSearchInput(e.target.value)}
                     onKeyDown={(e) => e.key === "Enter" && handleClanSearch()}
                     data-testid="input-clan-search"
+                    className="h-20 text-lg font-medium"
                   />
-                  <Button onClick={handleClanSearch} data-testid="button-search-clan">
-                    <Search className="w-4 h-4 mr-2" />
+                  <Button onClick={handleClanSearch} data-testid="button-search-clan" className="h-20 px-6 text-lg font-semibold">
+                    <Search className="w-5 h-5 mr-2" />
                     Search
                   </Button>
                 </div>
@@ -323,6 +324,7 @@ export default function PS99Tools() {
                   value={rapSearchQuery}
                   onChange={(e) => setRapSearchQuery(e.target.value)}
                   data-testid="input-rap-search"
+                  className="h-20 text-lg font-medium"
                 />
 
                 <ScrollArea className="h-[500px]">
@@ -572,9 +574,10 @@ export default function PS99Tools() {
                         onChange={(e) => setExistsId(e.target.value)}
                         onKeyDown={(e) => e.key === "Enter" && handleExistsCheck()}
                         data-testid="input-exists-id"
+                        className="h-20 text-lg font-medium"
                       />
-                      <Button onClick={handleExistsCheck} data-testid="button-check-exists">
-                        <CheckCircle className="w-4 h-4 mr-2" />
+                      <Button onClick={handleExistsCheck} data-testid="button-check-exists" className="h-20 px-6 text-lg font-semibold">
+                        <CheckCircle className="w-5 h-5 mr-2" />
                         Check
                       </Button>
                     </div>
