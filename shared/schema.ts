@@ -39,7 +39,7 @@ export interface GitHubSearchResult {
   language: "AHK v1" | "AHK v2";
 }
 
-export const personalScriptSchema = z.object({
+export const personalMacroSchema = z.object({
   name: z.string().min(1),
   description: z.string(),
   content: z.string().min(1),
@@ -47,9 +47,9 @@ export const personalScriptSchema = z.object({
   version: z.enum(["v1", "v2"]),
 });
 
-export type InsertPersonalScript = z.infer<typeof personalScriptSchema>;
+export type InsertPersonalMacro = z.infer<typeof personalMacroSchema>;
 
-export interface PersonalScript extends InsertPersonalScript {
+export interface PersonalMacro extends InsertPersonalMacro {
   id: string;
   isPersonal: boolean;
 }

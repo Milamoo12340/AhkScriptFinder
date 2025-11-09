@@ -2,15 +2,15 @@ import { storage } from "./storage";
 import { readFileSync } from "fs";
 import { join } from "path";
 
-export async function initializeScripts() {
-  const curatedScripts = await storage.getCuratedScripts();
+export async function initializeMacros() {
+  const curatedMacros = await storage.getCuratedMacros();
   
-  if (curatedScripts.length > 0) {
-    console.log('Curated scripts already initialized');
+  if (curatedMacros.length > 0) {
+    console.log('Curated macros already initialized');
     return;
   }
 
-  console.log('Initializing curated scripts...');
+  console.log('Initializing curated macros...');
 
   const fischMacro = `#SingleInstance Force
 setkeydelay, -1
@@ -120,7 +120,7 @@ return
 F2::ExitApp`;
 
   try {
-    await storage.createCuratedScript({
+    await storage.createCuratedMacro({
       name: "Fisch Macro V11.2",
       description: "Advanced fishing automation macro for Roblox Fisch game. Features auto-graphics lowering, camera positioning, shake detection (click/navigation modes), and minigame solver with stabilization.",
       content: fischMacro,
@@ -128,7 +128,7 @@ F2::ExitApp`;
       version: "v1"
     });
 
-    await storage.createCuratedScript({
+    await storage.createCuratedMacro({
       name: "PS99 Enhanced Clan Tracker",
       description: "Real-time clan competition tracker for Pet Simulator 99 using Big Games API. Track multiple clans, view live battle data, competition countdowns, and points comparison with auto-updates.",
       content: ps99ClanTracker,
@@ -136,7 +136,7 @@ F2::ExitApp`;
       version: "v1"
     });
 
-    await storage.createCuratedScript({
+    await storage.createCuratedMacro({
       name: "InkGame AutoRoll",
       description: "Auto-roller for Ink Game power rolls in Roblox. Optimized for 1920x1080 or 2560x1080 resolution with 1600 DPI. Press F1 to start, F2 to stop.",
       content: inkGameAutoRoll,
@@ -699,7 +699,7 @@ return
 ExitScript:
 ExitApp`;
 
-    await storage.createCuratedScript({
+    await storage.createCuratedMacro({
       name: "RAM Cleaner & Memory Optimizer",
       description: "Free up system memory using Windows EmptyWorkingSet API. Press Ctrl+Shift+M to instantly clean RAM, or Ctrl+Shift+A to enable auto-clean every 5 minutes. Perfect for keeping your PC responsive during gaming sessions.",
       content: ramCleaner,
@@ -707,7 +707,7 @@ ExitApp`;
       version: "v1"
     });
 
-    await storage.createCuratedScript({
+    await storage.createCuratedMacro({
       name: "Roblox Game Performance Booster",
       description: "Optimizes PC for Roblox gameplay by automatically closing background apps and enabling high-performance mode. Auto-activates when Roblox launches. Press Ctrl+Shift+G to toggle gaming mode. Ideal for low-end PCs.",
       content: robloxOptimizer,
@@ -715,7 +715,7 @@ ExitApp`;
       version: "v1"
     });
 
-    await storage.createCuratedScript({
+    await storage.createCuratedMacro({
       name: "CPU/GPU Performance Monitor",
       description: "Real-time system performance overlay showing CPU usage, RAM usage, and GPU temperature. Draggable GUI with color-coded progress bars. Press F9 to toggle visibility. Essential for monitoring performance during gaming.",
       content: cpuGpuMonitor,
@@ -723,7 +723,7 @@ ExitApp`;
       version: "v1"
     });
 
-    await storage.createCuratedScript({
+    await storage.createCuratedMacro({
       name: "Gaming Process Manager",
       description: "Multi-profile process manager with Light/Medium/Maximum gaming modes. Close browser, communication, and background apps based on your needs. Ctrl+1 for Light, Ctrl+2 for Medium, Ctrl+3 for Maximum mode. Ctrl+0 to restore normal.",
       content: processManager,
@@ -731,7 +731,7 @@ ExitApp`;
       version: "v1"
     });
 
-    await storage.createCuratedScript({
+    await storage.createCuratedMacro({
       name: "Low-End PC Ultimate Booster",
       description: "Comprehensive all-in-one optimization for slower PCs struggling with Roblox. Combines RAM cleaning, background app closure, visual effects disabling, temp file clearing, and power plan optimization. Press F12 for full optimization with progress display.",
       content: lowEndPCBooster,
@@ -739,8 +739,8 @@ ExitApp`;
       version: "v1"
     });
 
-    console.log('✓ Successfully initialized 8 curated scripts');
+    console.log('✓ Successfully initialized 8 curated macros');
   } catch (error) {
-    console.error('Error initializing scripts:', error);
+    console.error('Error initializing macros:', error);
   }
 }

@@ -1,7 +1,7 @@
 import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
-import { initializeScripts } from "./init-scripts";
+import { initializeMacros } from "./init-macros";
 
 const app = express();
 
@@ -48,8 +48,8 @@ app.use((req, res, next) => {
 });
 
 (async () => {
-  // Initialize default scripts on startup
-  await initializeScripts();
+  // Initialize default macros on startup
+  await initializeMacros();
   
   const server = await registerRoutes(app);
 

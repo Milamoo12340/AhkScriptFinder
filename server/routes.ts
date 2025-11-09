@@ -1,7 +1,7 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { githubSearchSchema, personalScriptSchema, type GitHubSearchResult } from "@shared/schema";
+import { githubSearchSchema, personalMacroSchema, type GitHubSearchResult } from "@shared/schema";
 import { z } from "zod";
 import OpenAI from "openai";
 
@@ -109,52 +109,52 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get("/api/scripts/curated", async (req, res) => {
+  app.get("/api/macros/curated", async (req, res) => {
     try {
-      const scripts = await storage.getCuratedScripts();
-      res.json({ success: true, scripts });
+      const macros = await storage.getCuratedMacros();
+      res.json({ success: true, macros });
     } catch (error) {
-      console.error('Error fetching curated scripts:', error);
-      res.status(500).json({ success: false, error: 'Failed to fetch curated scripts' });
+      console.error('Error fetching curated macros:', error);
+      res.status(500).json({ success: false, error: 'Failed to fetch curated macros' });
     }
   });
 
-  app.get("/api/scripts/personal", async (req, res) => {
+  app.get("/api/macros/personal", async (req, res) => {
     try {
-      const scripts = await storage.getPersonalScripts();
-      res.json({ success: true, scripts });
+      const macros = await storage.getPersonalMacros();
+      res.json({ success: true, macros });
     } catch (error) {
-      console.error('Error fetching personal scripts:', error);
-      res.status(500).json({ success: false, error: 'Failed to fetch scripts' });
+      console.error('Error fetching personal macros:', error);
+      res.status(500).json({ success: false, error: 'Failed to fetch macros' });
     }
   });
 
-  app.post("/api/scripts/personal", async (req, res) => {
+  app.post("/api/macros/personal", async (req, res) => {
     try {
-      const validated = personalScriptSchema.parse(req.body);
-      const script = await storage.createPersonalScript(validated);
-      res.json({ success: true, script });
+      const validated = personalMacroSchema.parse(req.body);
+      const macro = await storage.createPersonalMacro(validated);
+      res.json({ success: true, macro });
     } catch (error) {
       if (error instanceof z.ZodError) {
         res.status(400).json({ success: false, error: error.errors });
       } else {
-        console.error('Error creating script:', error);
-        res.status(500).json({ success: false, error: 'Failed to create script' });
+        console.error('Error creating macro:', error);
+        res.status(500).json({ success: false, error: 'Failed to create macro' });
       }
     }
   });
 
-  app.delete("/api/scripts/personal/:id", async (req, res) => {
+  app.delete("/api/macros/personal/:id", async (req, res) => {
     try {
-      const deleted = await storage.deletePersonalScript(req.params.id);
+      const deleted = await storage.deletePersonalMacro(req.params.id);
       if (deleted) {
         res.json({ success: true });
       } else {
-        res.status(404).json({ success: false, error: 'Script not found' });
+        res.status(404).json({ success: false, error: 'Macro not found' });
       }
     } catch (error) {
-      console.error('Error deleting script:', error);
-      res.status(500).json({ success: false, error: 'Failed to delete script' });
+      console.error('Error deleting macro:', error);
+      res.status(500).json({ success: false, error: 'Failed to delete macro' });
     }
   });
 

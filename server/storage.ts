@@ -1,4 +1,4 @@
-import { type User, type InsertUser, type PersonalScript, type InsertPersonalScript } from "@shared/schema";
+import { type User, type InsertUser, type PersonalMacro, type InsertPersonalMacro } from "@shared/schema";
 import { randomUUID } from "crypto";
 
 export interface IStorage {
@@ -6,22 +6,22 @@ export interface IStorage {
   getUserByUsername(username: string): Promise<User | undefined>;
   createUser(user: InsertUser): Promise<User>;
   
-  getAllScripts(): Promise<PersonalScript[]>;
-  getCuratedScripts(): Promise<PersonalScript[]>;
-  getPersonalScripts(): Promise<PersonalScript[]>;
-  getPersonalScript(id: string): Promise<PersonalScript | undefined>;
-  createPersonalScript(script: InsertPersonalScript): Promise<PersonalScript>;
-  createCuratedScript(script: InsertPersonalScript): Promise<PersonalScript>;
-  deletePersonalScript(id: string): Promise<boolean>;
+  getAllMacros(): Promise<PersonalMacro[]>;
+  getCuratedMacros(): Promise<PersonalMacro[]>;
+  getPersonalMacros(): Promise<PersonalMacro[]>;
+  getPersonalMacro(id: string): Promise<PersonalMacro | undefined>;
+  createPersonalMacro(macro: InsertPersonalMacro): Promise<PersonalMacro>;
+  createCuratedMacro(macro: InsertPersonalMacro): Promise<PersonalMacro>;
+  deletePersonalMacro(id: string): Promise<boolean>;
 }
 
 export class MemStorage implements IStorage {
   private users: Map<string, User>;
-  private personalScripts: Map<string, PersonalScript>;
+  private personalMacros: Map<string, PersonalMacro>;
 
   constructor() {
     this.users = new Map();
-    this.personalScripts = new Map();
+    this.personalMacros = new Map();
   }
 
   async getUser(id: string): Promise<User | undefined> {
@@ -41,38 +41,38 @@ export class MemStorage implements IStorage {
     return user;
   }
 
-  async getAllScripts(): Promise<PersonalScript[]> {
-    return Array.from(this.personalScripts.values());
+  async getAllMacros(): Promise<PersonalMacro[]> {
+    return Array.from(this.personalMacros.values());
   }
 
-  async getCuratedScripts(): Promise<PersonalScript[]> {
-    return Array.from(this.personalScripts.values()).filter(script => !script.isPersonal);
+  async getCuratedMacros(): Promise<PersonalMacro[]> {
+    return Array.from(this.personalMacros.values()).filter(macro => !macro.isPersonal);
   }
 
-  async getPersonalScripts(): Promise<PersonalScript[]> {
-    return Array.from(this.personalScripts.values()).filter(script => script.isPersonal);
+  async getPersonalMacros(): Promise<PersonalMacro[]> {
+    return Array.from(this.personalMacros.values()).filter(macro => macro.isPersonal);
   }
 
-  async getPersonalScript(id: string): Promise<PersonalScript | undefined> {
-    return this.personalScripts.get(id);
+  async getPersonalMacro(id: string): Promise<PersonalMacro | undefined> {
+    return this.personalMacros.get(id);
   }
 
-  async createPersonalScript(insertScript: InsertPersonalScript): Promise<PersonalScript> {
+  async createPersonalMacro(insertMacro: InsertPersonalMacro): Promise<PersonalMacro> {
     const id = randomUUID();
-    const script: PersonalScript = { ...insertScript, id, isPersonal: true };
-    this.personalScripts.set(id, script);
-    return script;
+    const macro: PersonalMacro = { ...insertMacro, id, isPersonal: true };
+    this.personalMacros.set(id, macro);
+    return macro;
   }
 
-  async createCuratedScript(insertScript: InsertPersonalScript): Promise<PersonalScript> {
+  async createCuratedMacro(insertMacro: InsertPersonalMacro): Promise<PersonalMacro> {
     const id = randomUUID();
-    const script: PersonalScript = { ...insertScript, id, isPersonal: false };
-    this.personalScripts.set(id, script);
-    return script;
+    const macro: PersonalMacro = { ...insertMacro, id, isPersonal: false };
+    this.personalMacros.set(id, macro);
+    return macro;
   }
 
-  async deletePersonalScript(id: string): Promise<boolean> {
-    return this.personalScripts.delete(id);
+  async deletePersonalMacro(id: string): Promise<boolean> {
+    return this.personalMacros.delete(id);
   }
 }
 
