@@ -787,11 +787,11 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950">
       <header className="border-b border-emerald-500/20 bg-slate-900/80 backdrop-blur-xl md:sticky md:top-0 z-50 shadow-2xl shadow-emerald-500/10">
-        <div className="max-w-7xl mx-auto px-4 md:px-8 py-3 flex items-center gap-3 flex-wrap">
+        <div className="max-w-7xl mx-auto px-4 md:px-8 py-4 flex items-center gap-3 flex-wrap">
           <div className="relative group flex-1 min-w-fit">
             <div className="absolute inset-0 bg-gradient-to-r from-emerald-500 to-teal-500 rounded-lg blur opacity-30 group-hover:opacity-50 transition-opacity"></div>
-            <div className="relative bg-gradient-to-br from-slate-800 to-slate-900 border border-emerald-500/30 rounded-lg px-6 py-3 shadow-xl">
-              <h1 className="text-lg md:text-xl font-bold bg-gradient-to-r from-emerald-400 to-teal-400 bg-clip-text text-transparent whitespace-nowrap" data-testid="text-app-title">
+            <div className="relative bg-gradient-to-br from-slate-800 to-slate-900 rounded-lg px-6 py-4 shadow-xl">
+              <h1 className="text-xl md:text-2xl font-bold bg-gradient-to-r from-emerald-400 to-teal-400 bg-clip-text text-transparent whitespace-nowrap" data-testid="text-app-title">
                 Milamoos AutoHotkey Macro Hub
               </h1>
             </div>
@@ -800,9 +800,9 @@ export default function Home() {
           <Link href="/ps99-tools" data-testid="link-ps99-tools-header" className="flex-1 min-w-fit">
             <div className="relative group/tab h-full">
               <div className="absolute inset-0 bg-gradient-to-r from-violet-500 to-purple-500 rounded-lg blur opacity-30 group-hover/tab:opacity-50 transition-opacity"></div>
-              <div className="relative flex items-center justify-center gap-3 px-6 py-3 bg-gradient-to-br from-slate-800 to-slate-900 border border-violet-500/30 hover:border-violet-400/50 rounded-lg transition-all cursor-pointer shadow-xl h-full">
-                <Trophy className="w-6 h-6 text-violet-400" />
-                <span className="text-lg md:text-xl font-bold text-violet-300 whitespace-nowrap">Pet Simulator 99</span>
+              <div className="relative flex items-center justify-center gap-3 px-6 py-4 bg-gradient-to-br from-slate-700 to-slate-800 border border-violet-500/30 hover:border-violet-400/50 rounded-lg transition-all cursor-pointer shadow-xl h-full">
+                <Trophy className="w-7 h-7 text-violet-400" />
+                <span className="text-xl md:text-2xl font-bold text-violet-300 whitespace-nowrap">Pet Simulator 99</span>
               </div>
             </div>
           </Link>
@@ -810,9 +810,9 @@ export default function Home() {
           <Link href="/python-transcriber" data-testid="link-python-transcriber-header" className="flex-1 min-w-fit">
             <div className="relative group/tab h-full">
               <div className="absolute inset-0 bg-gradient-to-r from-fuchsia-500 to-pink-500 rounded-lg blur opacity-30 group-hover/tab:opacity-50 transition-opacity"></div>
-              <div className="relative flex items-center justify-center gap-3 px-6 py-3 bg-gradient-to-br from-slate-800 to-slate-900 border border-fuchsia-500/30 hover:border-fuchsia-400/50 rounded-lg transition-all cursor-pointer shadow-xl h-full">
-                <Code2 className="w-6 h-6 text-fuchsia-400" />
-                <span className="text-lg md:text-xl font-bold text-fuchsia-300 whitespace-nowrap">Python Transcriber</span>
+              <div className="relative flex items-center justify-center gap-3 px-6 py-4 bg-gradient-to-br from-slate-700 to-slate-800 border border-fuchsia-500/30 hover:border-fuchsia-400/50 rounded-lg transition-all cursor-pointer shadow-xl h-full">
+                <Code2 className="w-7 h-7 text-fuchsia-400" />
+                <span className="text-xl md:text-2xl font-bold text-fuchsia-300 whitespace-nowrap">Python Transcriber</span>
               </div>
             </div>
           </Link>

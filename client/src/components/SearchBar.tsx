@@ -18,10 +18,10 @@ export default function SearchBar({
   onChange, 
   onSearch, 
   placeholder = "Search for AutoHotkey macros...",
-  inputHeight = "h-24",
-  buttonHeight = "h-24",
-  textSize = "text-xl",
-  iconSize = "h-7 w-7"
+  inputHeight = "h-20",
+  buttonHeight = "h-20",
+  textSize = "text-lg",
+  iconSize = "h-6 w-6"
 }: SearchBarProps) {
   const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') {
@@ -45,7 +45,7 @@ export default function SearchBar({
       </div>
       <Button 
         onClick={onSearch}
-        className="h-16 px-8 text-lg font-bold"
+        className="h-14 px-8 text-base font-bold"
         data-testid="button-search"
       >
         Search
