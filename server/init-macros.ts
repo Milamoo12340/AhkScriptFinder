@@ -136,12 +136,23 @@ F2::ExitApp`;
       version: "v1"
     });
 
+    const ps99AutoDiceContent = readFileSync(join(__dirname, "curated-scripts", "ps99-auto-dice-roller.ahk"), "utf-8");
+    const ps99ClanTrackerContent = readFileSync(join(__dirname, "curated-scripts", "ps99-clan-tracker.ahk"), "utf-8");
+    
     await storage.createCuratedMacro({
-      name: "InkGame AutoRoll",
-      description: "Auto-roller for Ink Game power rolls in Roblox. Optimized for 1920x1080 or 2560x1080 resolution with 1600 DPI. Press F1 to start, F2 to stop.",
-      content: inkGameAutoRoll,
-      tags: ["Roblox", "Ink Game", "Auto Roll", "Macro", "Gaming"],
-      version: "v1"
+      name: "PS99 Auto Dice Roller",
+      description: "Automatically rolls dice in Pet Simulator 99 events. Includes anti-kick movement. Works at 1920x1080. Press F1 to start, F2 to stop.",
+      content: ps99AutoDiceContent,
+      tags: ["Roblox", "Pet Simulator 99", "PS99", "Auto Roll", "Dice", "Gaming"],
+      version: "v2"
+    });
+    
+    await storage.createCuratedMacro({
+      name: "PS99 Clan Tracker with API",
+      description: "Real-time clan tracker using Big Games API. Track multiple clans, view live competition data, and monitor points. Press F5 to toggle, F7 to setup clans.",
+      content: ps99ClanTrackerContent,
+      tags: ["Roblox", "Pet Simulator 99", "PS99", "Clan", "Tracker", "API", "Real-time"],
+      version: "v2"
     });
 
     // System Optimization Scripts
