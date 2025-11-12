@@ -4,11 +4,12 @@ import { storage } from "./storage";
 import { githubSearchSchema, personalMacroSchema, type GitHubSearchResult } from "@shared/schema";
 import { z } from "zod";
 import OpenAI from "openai";
+import { config } from "./config";
 
-// Using Replit AI Integrations for OpenAI - no API key needed, billed to Replit credits
+// Initialize OpenAI client with fallback support for both Replit AI integrations and standard OpenAI
 const openai = new OpenAI({
-  baseURL: process.env.AI_INTEGRATIONS_OPENAI_BASE_URL,
-  apiKey: process.env.AI_INTEGRATIONS_OPENAI_API_KEY
+  baseURL: config.openai.baseURL,
+  apiKey: config.openai.apiKey
 });
 
 async function searchGitHubForAHKScripts(query: string, page: number = 1, perPage: number = 30): Promise<{ results: GitHubSearchResult[], totalCount: number }> {
@@ -20,8 +21,8 @@ async function searchGitHubForAHKScripts(query: string, page: number = 1, perPag
     'User-Agent': 'AHK-Script-Finder',
   };
   
-  if (process.env.GITHUB_TOKEN) {
-    headers['Authorization'] = `Bearer ${process.env.GITHUB_TOKEN}`;
+  if (config.github.token) {
+    headers['Authorization'] = `Bearer ${config.github.token}`;
   }
   
   const response = await fetch(url, { headers });
@@ -48,8 +49,8 @@ async function searchGitHubForAHKScripts(query: string, page: number = 1, perPag
             'User-Agent': 'AHK-Script-Finder',
           };
           
-          if (process.env.GITHUB_TOKEN) {
-            contentHeaders['Authorization'] = `Bearer ${process.env.GITHUB_TOKEN}`;
+          if (config.github.token) {
+            contentHeaders['Authorization'] = `Bearer ${config.github.token}`;
           }
           
           const contentResponse = await fetch(item.url, { headers: contentHeaders });

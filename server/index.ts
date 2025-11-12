@@ -2,6 +2,7 @@ import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
 import { initializeMacros } from "./init-macros";
+import { validateConfig } from "./config";
 
 const app = express();
 
@@ -48,6 +49,15 @@ app.use((req, res, next) => {
 });
 
 (async () => {
+  // Validate configuration and display warnings
+  const warnings = validateConfig();
+  if (warnings.length > 0) {
+    console.log('\n' + '='.repeat(60));
+    console.log('Configuration Status:');
+    warnings.forEach(warning => console.log(warning));
+    console.log('='.repeat(60) + '\n');
+  }
+  
   // Initialize default macros on startup
   await initializeMacros();
   
