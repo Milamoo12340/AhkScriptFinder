@@ -2,28 +2,38 @@ import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import path from "path";
 
-// Helper to safely import optional Replit plugins
-const loadOptionalPlugin = (importPath: string, exportName?: string) => {
+// Conditionally load Replit plugins (optional, only in Replit development)
+const plugins = [react()];
+
+if (process.env.NODE_ENV !== "production" && process.env.REPL_ID !== undefined) {
   try {
-    const mod = require(importPath);
-    return exportName ? mod[exportName] : mod.default;
-  } catch {
-    return null;
+    // @ts-ignore - optional Replit plugins
+    import("@replit/vite-plugin-runtime-error-modal").then((m) => {
+      plugins.push(m.default);
+    });
+  } catch (e) {
+    // Replit plugin not available
   }
-};
+  try {
+    // @ts-ignore - optional Replit plugins
+    import("@replit/vite-plugin-cartographer").then((m) => {
+      plugins.push(m.cartographer());
+    });
+  } catch (e) {
+    // Replit plugin not available
+  }
+  try {
+    // @ts-ignore - optional Replit plugins
+    import("@replit/vite-plugin-dev-banner").then((m) => {
+      plugins.push(m.devBanner());
+    });
+  } catch (e) {
+    // Replit plugin not available
+  }
+}
 
 export default defineConfig({
-  plugins: [
-    react(),
-    ...(process.env.NODE_ENV !== "production" &&
-    process.env.REPL_ID !== undefined
-      ? [
-          loadOptionalPlugin("@replit/vite-plugin-runtime-error-modal"),
-          loadOptionalPlugin("@replit/vite-plugin-cartographer", "cartographer")?.(),
-          loadOptionalPlugin("@replit/vite-plugin-dev-banner", "devBanner")?.(),
-        ].filter(Boolean)
-      : []),
-  ],
+  plugins,
   resolve: {
     alias: {
       "@": path.resolve(import.meta.dirname, "client", "src"),
