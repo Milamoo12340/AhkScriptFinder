@@ -2,43 +2,26 @@ import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import path from "path";
 
-// Conditionally load Replit-specific plugins if available
-// These are only used in Replit development environment
-const getReplitPlugins = async () => {
-  const plugins = [];
-  
-  // Only try to load Replit plugins if we're in Replit development
-  if (process.env.NODE_ENV !== "production" && process.env.REPL_ID !== undefined) {
-    try {
-      const runtimeErrorOverlay = await import("@replit/vite-plugin-runtime-error-modal").catch(() => null);
-      if (runtimeErrorOverlay?.default) plugins.push(runtimeErrorOverlay.default);
-    } catch (e) {
-      // Replit plugin not available - continue without it
-    }
-    
-    try {
-      const cartographer = await import("@replit/vite-plugin-cartographer").catch(() => null);
-      if (cartographer?.cartographer) plugins.push(cartographer.cartographer());
-    } catch (e) {
-      // Replit plugin not available - continue without it
-    }
-    
-    try {
-      const devBanner = await import("@replit/vite-plugin-dev-banner").catch(() => null);
-      if (devBanner?.devBanner) plugins.push(devBanner.devBanner());
-    } catch (e) {
-      // Replit plugin not available - continue without it
-    }
+// Helper to safely import optional Replit plugins
+const loadOptionalPlugin = (importPath: string, exportName?: string) => {
+  try {
+    const mod = require(importPath);
+    return exportName ? mod[exportName] : mod.default;
+  } catch {
+    return null;
   }
-  
-  return plugins;
 };
 
 export default defineConfig({
   plugins: [
     react(),
-    ...(process.env.NODE_ENV !== "production" && process.env.REPL_ID !== undefined
-      ? await getReplitPlugins()
+    ...(process.env.NODE_ENV !== "production" &&
+    process.env.REPL_ID !== undefined
+      ? [
+          loadOptionalPlugin("@replit/vite-plugin-runtime-error-modal"),
+          loadOptionalPlugin("@replit/vite-plugin-cartographer", "cartographer")?.(),
+          loadOptionalPlugin("@replit/vite-plugin-dev-banner", "devBanner")?.(),
+        ].filter(Boolean)
       : []),
   ],
   resolve: {
