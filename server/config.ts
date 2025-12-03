@@ -3,6 +3,16 @@
  * Replit AI integrations and external deployments
  */
 
+// Replit-specific environment variables (do NOT add to Vercel/external deployments)
+const REPLIT_ONLY_VARS = [
+  'AI_INTEGRATIONS_OPENAI_BASE_URL',
+  'AI_INTEGRATIONS_OPENAI_API_KEY',
+  'REPLIT_DEV_DOMAIN',
+  'REPL_ID',
+  'REPL_OWNER',
+  'REPL_SLUG'
+];
+
 export const config = {
   // OpenAI Configuration
   openai: {
@@ -32,7 +42,10 @@ export const config = {
   server: {
     port: parseInt(process.env.PORT || '5000', 10),
     nodeEnv: process.env.NODE_ENV || 'development'
-  }
+  },
+
+  // Platform detection
+  isReplit: !!process.env.REPL_ID
 };
 
 // Validation
@@ -41,7 +54,11 @@ export function validateConfig() {
   
   if (!config.openai.apiKey) {
     warnings.push('⚠️  No OpenAI API key found. AI generation features will not work.');
-    warnings.push('   Set one of: AI_INTEGRATIONS_OPENAI_API_KEY, OPENAI_API_KEY, or OPENAI_API');
+    if (config.isReplit) {
+      warnings.push('   Set one of: AI_INTEGRATIONS_OPENAI_API_KEY, OPENAI_API_KEY, or OPENAI_API');
+    } else {
+      warnings.push('   Set: OPENAI_API_KEY (do NOT use AI_INTEGRATIONS_* variables outside Replit)');
+    }
   }
   
   if (!config.github.token) {
@@ -54,4 +71,20 @@ export function validateConfig() {
   }
   
   return warnings;
+}
+
+// Get list of required environment variables for external deployments (Vercel, etc.)
+export function getRequiredEnvVars() {
+  return [
+    'SESSION_SECRET',
+    'DATABASE_URL',
+    'OPENAI_API_KEY', // Use this, NOT AI_INTEGRATIONS_OPENAI_API_KEY
+    'GITHUB_PERSONAL_ACCESS_TOKEN', // Optional but recommended
+    'NODE_ENV' // Should be 'production'
+  ];
+}
+
+// Get list of Replit-only environment variables (do NOT add to Vercel)
+export function getReplitOnlyVars() {
+  return REPLIT_ONLY_VARS;
 }
