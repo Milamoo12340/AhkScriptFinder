@@ -1,20 +1,48 @@
-<<<<<<< HEAD
-modules = ["nodejs-20", "python-3.12", "web", "bash"]
+modules = ["nodejs-20", "web", "postgresql-16"]
 run = "npm run dev"
 hidden = [".config", ".git", "generated-icon.png", "node_modules", "dist"]
 
 [nix]
-channel = "stable-25_05"
-packages = ["unzip", "gh"]
+channel = "stable-24_05"
+packages = ["unzip"]
 
 [deployment]
 deploymentTarget = "autoscale"
 build = ["npm", "run", "build"]
-run = ["npm", "start"]
+run = ["npm", "run", "start"]
+publicDir = "dist"
 
 [[ports]]
 localPort = 5000
+externalPort = 80
+
+[[ports]]
+localPort = 34911
 externalPort = 5000
+
+[[ports]]
+localPort = 35053
+externalPort = 3003
+
+[[ports]]
+localPort = 35777
+externalPort = 3000
+
+[[ports]]
+localPort = 36165
+externalPort = 5173
+
+[[ports]]
+localPort = 40317
+externalPort = 3002
+
+[[ports]]
+localPort = 42215
+externalPort = 4200
+
+[[ports]]
+localPort = 44535
+externalPort = 3001
 
 [env]
 PORT = "5000"
@@ -42,11 +70,3 @@ waitForPort = 5000
 
 [agent]
 integrations = ["javascript_mem_db:1.0.0", "javascript_openai:1.0.0", "javascript_database:1.0.0", "javascript_openai_ai_integrations:1.0.0"]
-=======
-[nix]
-channel = "stable-25_05"
-packages = ["unzip"]
-
-[agent]
->>>>>>> 49a2630 (Initial commit)
-expertMode = true
