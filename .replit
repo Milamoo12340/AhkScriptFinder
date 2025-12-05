@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 modules = ["nodejs-20", "python-3.12", "web", "bash"]
 run = "npm run dev"
 hidden = [".config", ".git", "generated-icon.png", "node_modules", "dist"]
@@ -41,4 +42,11 @@ waitForPort = 5000
 
 [agent]
 integrations = ["javascript_mem_db:1.0.0", "javascript_openai:1.0.0", "javascript_database:1.0.0", "javascript_openai_ai_integrations:1.0.0"]
+=======
+[nix]
+channel = "stable-25_05"
+packages = ["unzip"]
+
+[agent]
+>>>>>>> 49a2630 (Initial commit)
 expertMode = true
