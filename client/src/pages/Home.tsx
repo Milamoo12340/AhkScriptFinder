@@ -630,49 +630,30 @@ export default function Home() {
   const [isGenerating, setIsGenerating] = useState(false);
 
   const searchMutation = useMutation({
-// full mutationFn body (replace your current mutationFn)
-mutationFn: async (query: string) => {
-  const response = typeof apiRequest === 'function'
-    ? await apiRequest('POST', '/api/search/github', { query })
-    : await fetch('/api/search/github', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ query }),
+    mutationFn: async (query: string) => {
+      const response = await apiRequest('POST', '/api/search/github', { query });
+      return response.json();
+    },
+    onSuccess: (data) => {
+      if (data.success) {
+        const totalText = data.totalCount > data.results.length 
+          ? `Found ${data.results.length} of ${data.totalCount} total results`
+          : `Found ${data.results.length} results`;
+        toast({
+          title: "Search completed",
+          description: totalText,
+        });
+      }
+    },
+    onError: (error: any) => {
+      const errorMessage = error?.message || "Unable to search GitHub. Please check your GitHub token and try again.";
+      toast({
+        title: "Search failed",
+        description: errorMessage,
+        variant: "destructive",
       });
-
-  const data = typeof (response?.json) === 'function'
-    ? await response.json().catch(() => null)
-    : response;
-
-  const rawItems = Array.isArray(data?.items) ? data.items : [];
-
-  const mapped: SearchResult[] = rawItems.map((it: any, idx: number) => {
-    const repoFull = it.repository_name ?? it.repository?.full_name ?? '';
-    const owner = repoFull.split('/')[0] ?? '';
-
-    return {
-      id: it.html_url ?? it.url ?? `result-${idx}`,
-      repository: repoFull,
-      owner,
-      fileName: it.name ?? it.path ?? it.fileName ?? '',
-      filePath: it.path ?? it.filePath ?? '',
-      stars: Number(it.repository?.stargazers_count ?? it.stars ?? 0),
-      description: it.repository?.description ?? it.description ?? '',
-      codePreview: it.preview ?? it.snippet ?? it.text_matches?.[0]?.fragment ?? '',
-      url: it.html_url ?? it.repository_url ?? it.url ?? '',
-      downloadUrl: it.html_url ?? it.download_url ?? it.repository_url ?? it.url ?? '',
-      language: (it.name?.toLowerCase?.().includes('v2') || it.path?.toLowerCase?.().includes('v2')) ? 'AHK v2' : 'AHK v1',
-    };
+    },
   });
-
-  return {
-    ok: data?.ok ?? true,
-    total_count: Number(data?.total_count ?? data?.totalCount ?? rawItems.length),
-    items: mapped,
-    error: data?.error ?? null,
-  };
-}
-
 
   const personalMacrosQuery = useQuery<{ macros: Macro[] }>({
     queryKey: ['/api/macros/personal'],
@@ -800,10 +781,7 @@ mutationFn: async (query: string) => {
     return previewMacro.name;
   };
 
- const searchResults = Array.isArray(searchMutation.data?.items)
-  ? (searchMutation.data.items as SearchResult[])
-  : [];
-
+  const searchResults = (searchMutation.data?.results as SearchResult[]) || [];
   const personalMacros = (personalMacrosQuery.data?.macros as Macro[]) || [];
 
   const curatedMacrosQuery = useQuery<{ success: boolean; macros: Macro[] }>({
