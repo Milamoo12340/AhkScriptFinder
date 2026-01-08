@@ -1,0 +1,16 @@
+openapi: 3.0.4
+info:
+  title: AhkScriptFinder API
+  version: 1.0.0
+
+paths: {}
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+security:
+  - bearerAuth: []
