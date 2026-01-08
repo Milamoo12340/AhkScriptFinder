@@ -686,28 +686,39 @@ export default function Home() {
     },
   });
 
-  const generateMutation = useMutation({
-    mutationFn: async (prompt: string) => {
-      const response = await apiRequest('POST', '/api/ai/generate', { prompt });
-      return response.json();
-    },
-    onSuccess: (data) => {
-      if (data.success) {
-        setGeneratedCode(data.code);
-        toast({
-          title: "Macro generated",
-          description: "Your AutoHotkey macro has been generated successfully",
-        });
-      }
-    },
-    onError: () => {
-      toast({
-        title: "Generation failed",
-        description: "Unable to generate macro. Please try again.",
-        variant: "destructive",
-      });
-    },
-  });
+//   NEW WORKING AI GENERATOR (replaces old generateMutation) 
+  const handleGenerate = async () => { 
+      if (!aiPrompt.trim()) return; 
+
+      setIsGenerating(true); 
+      try { 
+        const res = await fetch("/api/generate", { 
+          method: "POST", 
+          headers: { "Content-Type": "application/json" }, 
+          body: JSON.stringify({ prompt: aiPrompt }) 
+       }); 
+
+        const data = await res.json(); 
+        setGeneratedCode(data.output); 
+
+        toast({ 
+          title: "Macro generated", 
+          description: "Your AutoHotkey macro has been generated successfully", 
+        }); 
+
+     } catch (err) { 
+        console.error("AI generation failed:", err); 
+     
+        toast({ 
+          title: "Generation failed", 
+          description: "Unable to generate macro. Please try again.", 
+          variant: "destructive", 
+        }); 
+
+      } finally { 
+       setIsGenerating(false); 
+      } 
+   };
 
   const handleSearch = () => {
     if (searchQuery.trim()) {
