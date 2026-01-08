@@ -1,8 +1,6 @@
 
 node_modules
-dist
 .DS_Store
-<<<<<<< HEAD
 .env
 *.log
 npm-debug.log*
@@ -23,10 +21,7 @@ generated-icon.png
 scripts_archive
 attached_assets
 assets/images
-.vercel
-=======
-server/public
-vite.config.ts.*
 *.tar.gz
 attached_assets
->>>>>>> refs/remotes/origin/main
+AhkScriptFinder-main
+zipFile.zip
