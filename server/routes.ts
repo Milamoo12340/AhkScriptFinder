@@ -5,6 +5,25 @@ import { githubSearchSchema, personalMacroSchema, type GitHubSearchResult } from
 import { z } from "zod";
 import OpenAI from "openai";
 import { config } from "./config";
+import { openai } from "./openai";
+
+router.post("/generate", async (req, res) => {
+  try {
+    const { prompt } = req.body;
+
+    const completion = await openai.chat.completions.create({
+      model: "gpt-4o-mini",
+      messages: [
+        { role: "user", content: prompt }
+      ]
+    });
+
+    res.json({ output: completion.choices[0].message.content });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "OpenAI request failed" });
+  }
+});
 
 // Initialize OpenAI client with fallback support for both Replit AI integrations and standard OpenAI
 const openai = new OpenAI({
