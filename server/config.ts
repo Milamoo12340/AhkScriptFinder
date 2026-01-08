@@ -72,8 +72,13 @@ export function validateConfig() {
   
   return warnings;
 }
-// authorisation header
-Authorization: Bearer OPENAI_API_KEY
+
+// server/config.ts (replace the invalid line with this)
+// export const defaultHeaders = {
+//  Authorization: `Bearer ${process.env.OPENAI_API_KEY ?? ""}`,
+//  "Content-Type": "application/json",
+// };
+
 
 
 // Get list of required environment variables for external deployments (Vercel, etc.)
