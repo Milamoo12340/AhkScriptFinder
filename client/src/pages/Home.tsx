@@ -991,8 +991,9 @@ const handleGenerate = async () => {
                 prompt={aiPrompt}
                 onPromptChange={setAiPrompt}
                 onGenerate={handleGenerate}
-                isGenerating={generateMutation.isPending}
-              />
+                isGenerating={isGenerating} 
+                generatedCode={generatedCode} 
+                />
             </div>
             {generatedCode && (
               <div className="border-2 border-emerald-400 dark:border-emerald-700 rounded-lg overflow-hidden shadow-sm">
