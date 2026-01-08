@@ -72,6 +72,9 @@ export function validateConfig() {
   
   return warnings;
 }
+// authorisation header
+Authorization: Bearer OPENAI_API_KEY
+
 
 // Get list of required environment variables for external deployments (Vercel, etc.)
 export function getRequiredEnvVars() {
