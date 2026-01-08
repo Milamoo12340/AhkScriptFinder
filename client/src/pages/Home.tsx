@@ -620,6 +620,7 @@ PostMessage(Receiver, Message) {
 export default function Home() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const searchResults = Array.isArray(searchMutation.data?.items) ? (searchMutation.data.items as SearchResult[]) : [];
   const [searchQuery, setSearchQuery] = useState("");
   const [aiPrompt, setAiPrompt] = useState("");
   const [generatedCode, setGeneratedCode] = useState<string | undefined>();
