@@ -671,7 +671,9 @@ mutationFn: async (query: string) => {
     items: mapped,
     error: data?.error ?? null,
   };
-}
+} // end mutationFn
+}); // <-- CLOSE useMutation here
+
 
 
   const personalMacrosQuery = useQuery<{ macros: Macro[] }>({
