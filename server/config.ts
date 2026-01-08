@@ -22,7 +22,13 @@ export const config = {
             process.env.OPENAI_API_KEY || 
             process.env.OPENAI_API || 
             undefined
-  },
+
+},
+  
+export const defaultHeaders = {
+  Authorization: `Bearer ${process.env.OPENAI_API_KEY ?? ""}`,
+  "Content-Type": "application/json",
+};
 
   // GitHub Configuration
   github: {
@@ -41,7 +47,7 @@ export const config = {
   // Server Configuration
   server: {
     port: parseInt(process.env.PORT || '5000', 10),
-    nodeEnv: process.env.NODE_ENV || 'development'
+    nodeEnv: process.env.NODE_ENV || 'production'
   },
 
   // Platform detection
