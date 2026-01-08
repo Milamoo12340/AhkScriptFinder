@@ -744,11 +744,27 @@ export default function Home() {
     setPreviewDialogOpen(true);
   };
 
-  const handleGenerate = () => {
-    if (aiPrompt.trim()) {
-      generateMutation.mutate(aiPrompt);
-    }
-  };
+const handleGenerate = async () => {
+  if (!aiPrompt.trim()) return;
+
+  setIsGenerating(true);
+
+  try {
+    const res = await fetch("/api/generate", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ prompt: aiPrompt })
+    });
+
+    const data = await res.json();
+    setGeneratedCode(data.output);
+  } catch (err) {
+    console.error("AI generation failed:", err);
+  } finally {
+    setIsGenerating(false);
+  }
+};
+
 
   const handleAddMacro = (macro: Omit<Macro, 'id'>) => {
     addMacroMutation.mutate(macro);
