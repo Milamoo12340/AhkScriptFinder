@@ -629,31 +629,42 @@ export default function Home() {
   const [hasSearched, setHasSearched] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
 
-  const searchMutation = useMutation({
-    mutationFn: async (query: string) => {
-      const response = await apiRequest('POST', '/api/search/github', { query });
-      return response.json();
-    },
-    onSuccess: (data) => {
-      if (data.success) {
-        const totalText = data.totalCount > data.results.length
-          ? `Found ${data.results.length} of ${data.totalCount} total results`
-          : `Found ${data.results.length} results`;
-        toast({
-          title: "Search completed",
-          description: totalText,
+const searchMutation = useMutation({
+  mutationFn: async (query: string) => {
+    // prefer apiRequest if you have it, otherwise fallback to fetch
+    const response = typeof apiRequest === 'function'
+      ? await apiRequest('POST', '/api/search/github', { query })
+      : await fetch('/api/search/github', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ query }),
         });
-      }
-    },
-    onError: (error: any) => {
-      const errorMessage = error?.message || "Unable to search GitHub. Please check your GitHub token and try again.";
-      toast({
-        title: "Search failed",
-        description: errorMessage,
-        variant: "destructive",
-      });
-    },
-  });
+
+    // normalize response: apiRequest may already return parsed JSON
+    const data = typeof (response?.json) === 'function'
+      ? await response.json().catch(() => null)
+      : response;
+
+    return data;
+  },
+  onSuccess: (data) => {
+    const items = Array.isArray(data?.items) ? data.items : [];
+    const total = Number(data?.total_count ?? data?.totalCount ?? items.length);
+
+    if (data?.ok) {
+      const totalText = total > items.length
+        ? `Found ${items.length} of ${total} total results`
+        : `Found ${items.length} results`;
+      toast({ title: "Search completed", description: totalText });
+    } else {
+      toast({ title: "Search completed", description: data?.error || 'Search completed with no results' });
+    }
+  },
+  onError: (error: any) => {
+    const errorMessage = error?.message || "Unable to search GitHub. Please check your GitHub token and try again.";
+    toast({ title: "Search failed", description: errorMessage, variant: "destructive" });
+  },
+});
 
   const personalMacrosQuery = useQuery<{ macros: Macro[] }>({
     queryKey: ['/api/macros/personal'],
