@@ -627,6 +627,7 @@ export default function Home() {
   const [previewDialogOpen, setPreviewDialogOpen] = useState(false);
   const [previewMacro, setPreviewMacro] = useState<Macro | SearchResult | null>(null);
   const [hasSearched, setHasSearched] = useState(false);
+  const [isGenerating, setIsGenerating] = useState(false);
 
   const searchMutation = useMutation({
     mutationFn: async (query: string) => {
@@ -635,7 +636,7 @@ export default function Home() {
     },
     onSuccess: (data) => {
       if (data.success) {
-        const totalText = data.totalCount > data.results.length 
+        const totalText = data.totalCount > data.results.length
           ? `Found ${data.results.length} of ${data.totalCount} total results`
           : `Found ${data.results.length} results`;
         toast({
@@ -686,39 +687,39 @@ export default function Home() {
     },
   });
 
-//   NEW WORKING AI GENERATOR (replaces old generateMutation) 
-  const handleGenerate = async () => { 
-      if (!aiPrompt.trim()) return; 
+  // Single, canonical handleGenerate (no duplicate)
+  const handleGenerate = async () => {
+    if (!aiPrompt.trim()) return;
 
-      setIsGenerating(true); 
-      try { 
-        const res = await fetch("/api/generate", { 
-          method: "POST", 
-          headers: { "Content-Type": "application/json" }, 
-          body: JSON.stringify({ prompt: aiPrompt }) 
-       }); 
+    setIsGenerating(true);
+    try {
+      const res = await fetch("/api/generate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ prompt: aiPrompt }),
+      });
 
-        const data = await res.json(); 
-        setGeneratedCode(data.output); 
+      if (!res.ok) throw new Error(`Server returned ${res.status}`);
 
-        toast({ 
-          title: "Macro generated", 
-          description: "Your AutoHotkey macro has been generated successfully", 
-        }); 
+      const data = await res.json();
+      // support both possible response shapes
+      setGeneratedCode(data.output ?? data.code ?? "");
 
-     } catch (err) { 
-        console.error("AI generation failed:", err); 
-     
-        toast({ 
-          title: "Generation failed", 
-          description: "Unable to generate macro. Please try again.", 
-          variant: "destructive", 
-        }); 
-
-      } finally { 
-       setIsGenerating(false); 
-      } 
-   };
+      toast({
+        title: "Macro generated",
+        description: "Your AutoHotkey macro has been generated successfully",
+      });
+    } catch (err) {
+      console.error("AI generation failed:", err);
+      toast({
+        title: "Generation failed",
+        description: "Unable to generate macro. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsGenerating(false);
+    }
+  };
 
   const handleSearch = () => {
     if (searchQuery.trim()) {
@@ -754,28 +755,6 @@ export default function Home() {
     setPreviewMacro(item);
     setPreviewDialogOpen(true);
   };
-
-const handleGenerate = async () => {
-  if (!aiPrompt.trim()) return;
-
-  setIsGenerating(true);
-
-  try {
-    const res = await fetch("/api/generate", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ prompt: aiPrompt })
-    });
-
-    const data = await res.json();
-    setGeneratedCode(data.output);
-  } catch (err) {
-    console.error("AI generation failed:", err);
-  } finally {
-    setIsGenerating(false);
-  }
-};
-
 
   const handleAddMacro = (macro: Omit<Macro, 'id'>) => {
     addMacroMutation.mutate(macro);
