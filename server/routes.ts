@@ -8,7 +8,7 @@ import OpenAI from "openai";
 // Using Replit AI Integrations for OpenAI - no API key needed, billed to Replit credits
 const openai = new OpenAI({
   baseURL: process.env.AI_INTEGRATIONS_OPENAI_BASE_URL,
-  apiKey: process.env.AI_INTEGRATIONS_OPENAI_API_KEY
+  apiKey: "dummy-key"
 });
 
 async function searchGitHubForAHKScripts(query: string, page: number = 1, perPage: number = 30): Promise<{ results: GitHubSearchResult[], totalCount: number }> {
@@ -20,79 +20,96 @@ async function searchGitHubForAHKScripts(query: string, page: number = 1, perPag
     'User-Agent': 'AHK-Script-Finder',
   };
   
-  if (process.env.GITHUB_TOKEN) {
-    headers['Authorization'] = `Bearer ${process.env.GITHUB_TOKEN}`;
+  // Public search without token if GITHUB_TOKEN is missing or invalid
+  if (process.env.GITHUB_TOKEN && process.env.GITHUB_TOKEN !== 'undefined') {
+    headers['Authorization'] = `token ${process.env.GITHUB_TOKEN}`;
   }
   
   const response = await fetch(url, { headers });
 
   if (!response.ok) {
+    if (response.status === 401 || response.status === 403) {
+      // Fallback to unauthenticated request if token fails
+      console.warn(`GitHub API auth failed (${response.status}), retrying without token...`);
+      const publicResponse = await fetch(url, { 
+        headers: {
+          'Accept': 'application/vnd.github.v3+json',
+          'User-Agent': 'AHK-Script-Finder',
+        }
+      });
+      if (!publicResponse.ok) {
+        const errorText = await publicResponse.text();
+        throw new Error(`GitHub API error: ${publicResponse.status} ${publicResponse.statusText} - ${errorText}`);
+      }
+      return processGitHubData(await publicResponse.json());
+    }
     const errorText = await response.text();
     throw new Error(`GitHub API error: ${response.status} ${response.statusText} - ${errorText}`);
   }
 
-  const data = await response.json();
-  
+  return processGitHubData(await response.json());
+}
+
+async function processGitHubData(data: any): Promise<{ results: GitHubSearchResult[], totalCount: number }> {
   if (!data.items || data.items.length === 0) {
     return { results: [], totalCount: data.total_count || 0 };
   }
 
-    const results: GitHubSearchResult[] = (await Promise.all(
-      data.items.map(async (item: any) => {
-        let codePreview = '';
-        let language: "AHK v1" | "AHK v2" = "AHK v1";
+  const results: GitHubSearchResult[] = (await Promise.all(
+    data.items.map(async (item: any) => {
+      let codePreview = '';
+      let language: "AHK v1" | "AHK v2" = "AHK v1";
+      
+      try {
+        const contentHeaders: Record<string, string> = {
+          'Accept': 'application/vnd.github.v3.raw',
+          'User-Agent': 'AHK-Script-Finder',
+        };
         
-        try {
-          const contentHeaders: Record<string, string> = {
-            'Accept': 'application/vnd.github.v3.raw',
-            'User-Agent': 'AHK-Script-Finder',
-          };
+        // Use token for content if available
+        if (process.env.GITHUB_TOKEN && process.env.GITHUB_TOKEN !== 'undefined') {
+          contentHeaders['Authorization'] = `token ${process.env.GITHUB_TOKEN}`;
+        }
+        
+        const contentResponse = await fetch(item.url, { headers: contentHeaders });
+        
+        if (contentResponse.ok) {
+          const content = await contentResponse.text();
           
-          if (process.env.GITHUB_TOKEN) {
-            contentHeaders['Authorization'] = `Bearer ${process.env.GITHUB_TOKEN}`;
-          }
-          
-          const contentResponse = await fetch(item.url, { headers: contentHeaders });
-          
-          if (contentResponse.ok) {
-            const content = await contentResponse.text();
-            
-            // Strictly filter for AHK files by checking extension and content
-            if (!item.name.toLowerCase().endsWith('.ahk')) {
-              return null;
-            }
-
-            const lines = content.split('\n').slice(0, 6);
-            codePreview = lines.join('\n');
-            
-            if (content.includes('#Requires AutoHotkey v2') || content.includes('AutoHotkey v2')) {
-              language = "AHK v2";
-            }
-          } else {
+          if (!item.name.toLowerCase().endsWith('.ahk')) {
             return null;
           }
-        } catch (error) {
-          console.error('Error fetching file content:', error);
+
+          const lines = content.split('\n').slice(0, 6);
+          codePreview = lines.join('\n');
+          
+          if (content.includes('#Requires AutoHotkey v2') || content.includes('AutoHotkey v2')) {
+            language = "AHK v2";
+          }
+        } else {
           return null;
         }
+      } catch (error) {
+        return null;
+      }
 
-        return {
-          id: item.sha,
-          repository: item.repository.name,
-          owner: item.repository.owner.login,
-          fileName: item.name,
-          filePath: item.path,
-          stars: item.repository.stargazers_count || 0,
-          description: item.repository.description || '',
-          codePreview,
-          url: item.html_url,
-          downloadUrl: item.download_url || `https://raw.githubusercontent.com/${item.repository.full_name}/${item.repository.default_branch}/${item.path}`,
-          language,
-        };
-      })
-    )).filter((r): r is GitHubSearchResult => r !== null);
+      return {
+        id: item.sha,
+        repository: item.repository.name,
+        owner: item.repository.owner.login,
+        fileName: item.name,
+        filePath: item.path,
+        stars: item.repository.stargazers_count || 0,
+        description: item.repository.description || '',
+        codePreview,
+        url: item.html_url,
+        downloadUrl: item.download_url || `https://raw.githubusercontent.com/${item.repository.full_name}/${item.repository.default_branch}/${item.path}`,
+        language,
+      };
+    })
+  )).filter((r): r is GitHubSearchResult => r !== null);
 
-    return { results, totalCount: results.length };
+  return { results, totalCount: results.length };
 }
 
 export async function registerRoutes(app: Express): Promise<Server> {
@@ -176,7 +193,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       const response = await openai.chat.completions.create({
-        model: 'gpt-4o-mini',
+        model: 'gpt-4o',
         messages: [
           {
             role: 'system',
@@ -219,7 +236,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       const response = await openai.chat.completions.create({
-        model: 'gpt-4o-mini',
+        model: 'gpt-4o',
         messages: [
           { role: 'system', content: systemPrompt },
           { role: 'user', content: userPrompt },
@@ -260,7 +277,7 @@ Requirements:
 Provide ONLY the AutoHotkey code without explanations or markdown formatting.`;
 
       const response = await openai.chat.completions.create({
-        model: 'gpt-4o-mini',
+        model: 'gpt-4o',
         messages: [
           { role: 'system', content: systemPrompt },
           { role: 'user', content: userPrompt },
