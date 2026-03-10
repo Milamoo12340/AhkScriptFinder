@@ -1,5 +1,5 @@
 import { sql } from "drizzle-orm";
-import { pgTable, text, varchar } from "drizzle-orm/pg-core";
+import { pgTable, text, varchar, boolean } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
@@ -39,20 +39,19 @@ export interface GitHubSearchResult {
   language: "AHK v1" | "AHK v2";
 }
 
-export const personalMacroSchema = z.object({
-  name: z.string().min(1),
-  description: z.string(),
-  content: z.string().min(1),
-  tags: z.array(z.string()),
-  version: z.enum(["v1", "v2"]),
+export const personalMacros = pgTable("personal_macros", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  name: text("name").notNull(),
+  description: text("description").notNull(),
+  content: text("content").notNull(),
+  tags: text("tags").array().notNull().default(sql`'{}'::text[]`),
+  version: text("version", { enum: ["v1", "v2"] }).notNull().default("v1"),
+  isPersonal: boolean("is_personal").notNull().default(true),
 });
 
-export type InsertPersonalMacro = z.infer<typeof personalMacroSchema>;
-
-export interface PersonalMacro extends InsertPersonalMacro {
-  id: string;
-  isPersonal: boolean;
-}
+export const insertPersonalMacroSchema = createInsertSchema(personalMacros).omit({ id: true });
+export type InsertPersonalMacro = z.infer<typeof insertPersonalMacroSchema>;
+export type PersonalMacro = typeof personalMacros.$inferSelect;
 
 // Big Games PS99 API schemas
 export const bigGamesApiKeySchema = z.object({

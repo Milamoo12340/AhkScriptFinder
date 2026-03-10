@@ -1,7 +1,7 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { githubSearchSchema, personalMacroSchema, type GitHubSearchResult } from "@shared/schema";
+import { githubSearchSchema, insertPersonalMacroSchema, type GitHubSearchResult } from "@shared/schema";
 import { z } from "zod";
 import OpenAI from "openai";
 
@@ -131,7 +131,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post("/api/macros/personal", async (req, res) => {
     try {
-      const validated = personalMacroSchema.parse(req.body);
+      const validated = insertPersonalMacroSchema.parse(req.body);
       const macro = await storage.createPersonalMacro(validated);
       res.json({ success: true, macro });
     } catch (error) {

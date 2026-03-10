@@ -1,5 +1,6 @@
-import { type User, type InsertUser, type PersonalMacro, type InsertPersonalMacro } from "@shared/schema";
-import { randomUUID } from "crypto";
+import { type User, type InsertUser, type PersonalMacro, type InsertPersonalMacro, users, personalMacros as personalMacrosTable } from "@shared/schema";
+import { db } from "./db";
+import { eq, and } from "drizzle-orm";
 
 export interface IStorage {
   getUser(id: string): Promise<User | undefined>;
@@ -15,65 +16,53 @@ export interface IStorage {
   deletePersonalMacro(id: string): Promise<boolean>;
 }
 
-export class MemStorage implements IStorage {
-  private users: Map<string, User>;
-  private personalMacros: Map<string, PersonalMacro>;
-
-  constructor() {
-    this.users = new Map();
-    this.personalMacros = new Map();
-  }
-
+export class DatabaseStorage implements IStorage {
   async getUser(id: string): Promise<User | undefined> {
-    return this.users.get(id);
+    const [user] = await db.select().from(users).where(eq(users.id, id));
+    return user;
   }
 
   async getUserByUsername(username: string): Promise<User | undefined> {
-    return Array.from(this.users.values()).find(
-      (user) => user.username === username,
-    );
+    const [user] = await db.select().from(users).where(eq(users.username, username));
+    return user;
   }
 
   async createUser(insertUser: InsertUser): Promise<User> {
-    const id = randomUUID();
-    const user: User = { ...insertUser, id };
-    this.users.set(id, user);
+    const [user] = await db.insert(users).values(insertUser).returning();
     return user;
   }
 
   async getAllMacros(): Promise<PersonalMacro[]> {
-    return Array.from(this.personalMacros.values());
+    return await db.select().from(personalMacrosTable);
   }
 
   async getCuratedMacros(): Promise<PersonalMacro[]> {
-    return Array.from(this.personalMacros.values()).filter(macro => !macro.isPersonal);
+    return await db.select().from(personalMacrosTable).where(eq(personalMacrosTable.isPersonal, false));
   }
 
   async getPersonalMacros(): Promise<PersonalMacro[]> {
-    return Array.from(this.personalMacros.values()).filter(macro => macro.isPersonal);
+    return await db.select().from(personalMacrosTable).where(eq(personalMacrosTable.isPersonal, true));
   }
 
   async getPersonalMacro(id: string): Promise<PersonalMacro | undefined> {
-    return this.personalMacros.get(id);
+    const [macro] = await db.select().from(personalMacrosTable).where(eq(personalMacrosTable.id, id));
+    return macro;
   }
 
   async createPersonalMacro(insertMacro: InsertPersonalMacro): Promise<PersonalMacro> {
-    const id = randomUUID();
-    const macro: PersonalMacro = { ...insertMacro, id, isPersonal: true };
-    this.personalMacros.set(id, macro);
+    const [macro] = await db.insert(personalMacrosTable).values({ ...insertMacro, isPersonal: true }).returning();
     return macro;
   }
 
   async createCuratedMacro(insertMacro: InsertPersonalMacro): Promise<PersonalMacro> {
-    const id = randomUUID();
-    const macro: PersonalMacro = { ...insertMacro, id, isPersonal: false };
-    this.personalMacros.set(id, macro);
+    const [macro] = await db.insert(personalMacrosTable).values({ ...insertMacro, isPersonal: false }).returning();
     return macro;
   }
 
   async deletePersonalMacro(id: string): Promise<boolean> {
-    return this.personalMacros.delete(id);
+    const [deleted] = await db.delete(personalMacrosTable).where(eq(personalMacrosTable.id, id)).returning();
+    return !!deleted;
   }
 }
 
-export const storage = new MemStorage();
+export const storage = new DatabaseStorage();
