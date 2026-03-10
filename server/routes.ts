@@ -37,7 +37,7 @@ async function searchGitHubForAHKScripts(query: string, page: number = 1, perPag
     return { results: [], totalCount: data.total_count || 0 };
   }
 
-    const results: GitHubSearchResult[] = await Promise.all(
+    const results: GitHubSearchResult[] = (await Promise.all(
       data.items.map(async (item: any) => {
         let codePreview = '';
         let language: "AHK v1" | "AHK v2" = "AHK v1";
@@ -56,15 +56,24 @@ async function searchGitHubForAHKScripts(query: string, page: number = 1, perPag
           
           if (contentResponse.ok) {
             const content = await contentResponse.text();
+            
+            // Strictly filter for AHK files by checking extension and content
+            if (!item.name.toLowerCase().endsWith('.ahk')) {
+              return null;
+            }
+
             const lines = content.split('\n').slice(0, 6);
             codePreview = lines.join('\n');
             
             if (content.includes('#Requires AutoHotkey v2') || content.includes('AutoHotkey v2')) {
               language = "AHK v2";
             }
+          } else {
+            return null;
           }
         } catch (error) {
           console.error('Error fetching file content:', error);
+          return null;
         }
 
         return {
@@ -81,9 +90,9 @@ async function searchGitHubForAHKScripts(query: string, page: number = 1, perPag
           language,
         };
       })
-    );
+    )).filter((r): r is GitHubSearchResult => r !== null);
 
-    return { results, totalCount: data.total_count || results.length };
+    return { results, totalCount: results.length };
 }
 
 export async function registerRoutes(app: Express): Promise<Server> {

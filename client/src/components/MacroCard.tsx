@@ -22,6 +22,19 @@ interface MacroCardProps {
 }
 
 export default function MacroCard({ macro, onDownload, onPreview, onDelete }: MacroCardProps) {
+  const handleDownload = () => {
+    const blob = new Blob([macro.content], { type: 'text/plain' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${macro.name.replace(/\s+/g, '_')}.ahk`;
+    document.body.appendChild(a);
+    a.click();
+    window.URL.revokeObjectURL(url);
+    document.body.removeChild(a);
+    onDownload(macro);
+  };
+
   return (
     <div className="relative group">
       <div className="absolute inset-0 bg-gradient-to-r from-emerald-500 to-teal-500 rounded-xl blur opacity-0 group-hover:opacity-20 transition-opacity duration-300"></div>
@@ -84,15 +97,15 @@ export default function MacroCard({ macro, onDownload, onPreview, onDelete }: Ma
             <Eye className="h-4 w-4 mr-2" />
             Preview Code
           </Button>
-          <Button
-            size="sm"
-            onClick={() => onDownload(macro)}
-            data-testid={`button-download-${macro.id}`}
-            className="flex-1 min-w-[100px] bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white shadow-md shadow-emerald-500/20"
-          >
-            <Download className="h-4 w-4 mr-2" />
-            Download
-          </Button>
+            <Button
+              size="sm"
+              onClick={handleDownload}
+              data-testid={`button-download-${macro.id}`}
+              className="flex-1 min-w-[100px] bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white shadow-md shadow-emerald-500/20"
+            >
+              <Download className="h-4 w-4 mr-2" />
+              Download .ahk
+            </Button>
           {macro.isPersonal && onDelete && (
             <Button
               variant="destructive"

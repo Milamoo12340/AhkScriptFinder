@@ -23,6 +23,20 @@ interface SearchResultCardProps {
 }
 
 export default function SearchResultCard({ result, onDownload }: SearchResultCardProps) {
+  const handleDownload = () => {
+    const blob = new Blob([result.codePreview], { type: 'text/plain' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    const extension = result.fileName.toLowerCase().endsWith('.ahk') ? '' : '.ahk';
+    a.download = `${result.fileName}${extension}`;
+    document.body.appendChild(a);
+    a.click();
+    window.URL.revokeObjectURL(url);
+    document.body.removeChild(a);
+    onDownload(result);
+  };
+
   return (
     <div className="relative group">
       <div className="absolute inset-0 bg-gradient-to-r from-emerald-500 to-teal-500 rounded-xl blur opacity-0 group-hover:opacity-20 transition-opacity duration-300"></div>
@@ -90,12 +104,12 @@ export default function SearchResultCard({ result, onDownload }: SearchResultCar
           </Button>
           <Button
             size="sm"
-            onClick={() => onDownload(result)}
+            onClick={handleDownload}
             data-testid={`button-download-${result.id}`}
             className="flex-1 min-w-[140px] bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white shadow-md shadow-emerald-500/20"
           >
             <Download className="h-4 w-4 mr-2" />
-            Download
+            Download .ahk
           </Button>
         </CardFooter>
       </Card>

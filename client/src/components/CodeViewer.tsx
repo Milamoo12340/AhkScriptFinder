@@ -49,7 +49,7 @@ export default function CodeViewer({ code, title = "Code" }: CodeViewerProps) {
       
       <CardContent className="p-0">
         <div className="bg-slate-950 dark:bg-slate-900 p-6 max-h-96 overflow-auto border-t border-emerald-900/20">
-          <pre className="text-sm font-mono text-emerald-100">
+          <pre className="text-sm font-mono text-emerald-100 language-autohotkey">
             <code data-testid="text-code-content">{code}</code>
           </pre>
         </div>
