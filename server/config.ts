@@ -75,10 +75,16 @@ export function validateConfig() {
     if (config.isReplit) {
       warnings.push('   Set one of: AI_INTEGRATIONS_OPENAI_API_KEY, OPENAI_API_KEY, or OPENAI_API');
     } else {
-      warnings.push('   Set: OPENAI_API_KEY (do NOT use AI_INTEGRATIONS_* variables outside Replit)');
+      warnings.push('   Set: OPENAI_API_KEY, VERCEL_OIDC_TOKEN, AI_GATEWAY_API_KEY (do NOT use AI_INTEGRATIONS_* variables outside Replit)');
     }
   }
 
+  if (!config.vercelOidcToken) {
+    warnings.push('   Set: OPENAI_API_KEY, VERCEL_OIDC_TOKEN, AI_GATEWAY_API_KEY (do NOT use AI_INTEGRATIONS_* variables outside Replit)');
+  }
+  if (!config.gatewayApiKey) {
+    warnings.push('   Set: OPENAI_API_KEY, VERCEL_OIDC_TOKEN, AI_GATEWAY_API_KEY (do NOT use AI_INTEGRATIONS_* variables outside Replit)');
+  }
   if (!config.github.token) {
     warnings.push('⚠️  No GitHub token found. GitHub search will have lower rate limits (60 requests/hour).');
     warnings.push('   Set one of: GITHUB_TOKEN, GITHUB_PERSONAL_ACCESS_TOKEN, or Github_Token');
@@ -96,7 +102,9 @@ export function getRequiredEnvVars() {
   return [
     'SESSION_SECRET',
     'DATABASE_URL',
-    'OPENAI_API_KEY', // Use this, NOT AI_INTEGRATIONS_OPENAI_API_KEY
+    'OPENAI_API_KEY',  // Use this, NOT AI_INTEGRATIONS_OPENAI_API_KEY
+    'VERCEL_OIDC_TOKEN',
+    'AI_GATEWAY_API_KEY',
     'GITHUB_PERSONAL_ACCESS_TOKEN', // Optional but recommended
     'NODE_ENV', // Should be 'production'
   ];
