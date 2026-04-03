@@ -43,7 +43,7 @@ export const config = {
       process.env.GITHUB_PERSONAL_ACCESS_TOKEN ||
       process.env.Github_Token ||
       undefined,
-  },
+
 
   // Database Configuration
   database: {
