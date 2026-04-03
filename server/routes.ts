@@ -6,10 +6,59 @@ import { z } from "zod";
 import OpenAI from "openai";
 import { config } from "./config";
 import { openai } from "./openai";
+import fetch from "node-fetch";
+import { config } from "./config";
+import { sendOpenAIRequest } from "./openaiClient";
+
+const router = express.Router();
 
 router.post("/generate", async (req, res) => {
   try {
     const { prompt } = req.body;
+
+    // 1) Optional: search GitHub for AHK snippets using your existing token
+    const ghToken = config.github.token;
+    let ghResults: any[] = [];
+    if (ghToken) {
+      const q = encodeURIComponent('extension:ahk ' + prompt);
+      const ghRes = await fetch(`https://api.github.com/search/code?q=${q}&per_page=5`, {
+        headers: {
+          Authorization: `token ${ghToken}`,
+          Accept: "application/vnd.github.v3.text-match+json",
+        },
+      });
+      if (ghRes.ok) {
+        const ghJson = await ghRes.json();
+        ghResults = ghJson.items || [];
+      }
+    }
+
+    // 2) Build combined prompt for OpenAI
+    const combinedPrompt = `
+      Use the following GitHub AHK snippets as reference:
+      ${ghResults.map((i: any) => `- ${i.html_url}`).join("\n")}
+
+      User prompt:
+      ${prompt}
+    `;
+
+    // 3) Call OpenAI (path and body depend on API version)
+    const body = {
+      model: "gpt-4o-mini", // replace with your model
+      messages: [{ role: "user", content: combinedPrompt }],
+      max_tokens: 800,
+    };
+
+    const aiResponse = await sendOpenAIRequest("/chat/completions", body);
+
+    // 4) Return AI output to client
+    res.json({ ok: true, ai: aiResponse });
+  } catch (err: any) {
+    console.error(err);
+    res.status(500).json({ ok: false, error: err.message || String(err) });
+  }
+});
+
 
     const completion = await openai.chat.completions.create({
       model: "gpt-4o-mini",
@@ -24,6 +73,8 @@ router.post("/generate", async (req, res) => {
     res.status(500).json({ error: "OpenAI request failed" });
   }
 });
+
+export default router;
 
 // Initialize OpenAI client with fallback support for both Replit AI integrations and standard OpenAI
 const openai = new OpenAI({
