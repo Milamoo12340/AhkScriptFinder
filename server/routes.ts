@@ -68,7 +68,7 @@ router.post("/generate", async (req, res) => {
     });
 
     res.json({ output: completion.choices[0].message.content });
-  } catch (err) {
+    catch (err) 
     console.error(err);
     res.status(500).json({ error: "OpenAI request failed" });
   }
