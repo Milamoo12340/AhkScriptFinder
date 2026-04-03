@@ -14,10 +14,10 @@ const REPLIT_ONLY_VARS = [
   'REPL_SLUG',
 ];
 
+
 export const config = {
-  // OpenAI Configuration
+  
   openai: {
-    // Prefer explicit env var, then Replit integration, then default base URL
     baseURL:
       process.env.OPENAI_BASE_URL ||
       process.env.AI_INTEGRATIONS_OPENAI_BASE_URL ||
@@ -27,7 +27,13 @@ export const config = {
       process.env.OPENAI_API ||
       process.env.AI_INTEGRATIONS_OPENAI_API_KEY ||
       undefined,
+    // New: optional gateway key (local) or OIDC token (Vercel)
+    gatewayApiKey: process.env.AI_GATEWAY_API_KEY || undefined,
+    vercelOidcToken: process.env.VERCEL_OIDC_TOKEN || undefined,
   },
+  // ...rest unchanged
+};
+
 
   // GitHub Configuration
   github: {
